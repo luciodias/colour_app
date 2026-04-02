@@ -1,0 +1,46 @@
+async def test_index(client):
+    res = await client.get("/")
+    assert res.status_code == 200
+    assert b"Sistema IoT" in res.body
+
+
+async def test_dashboard(client):
+    res = await client.get("/dashboard")
+    assert res.status_code == 200
+    assert b"Dashboard IoT" in res.body
+
+
+async def test_data_endpoint(client):
+    res = await client.get("/data")
+    assert res.status_code == 200
+
+    data = res.json
+    assert "temperature" in data
+    assert "humidity" in data
+    assert "alerts" in data
+
+
+async def test_config_data_get(client):
+    res = await client.get("/config-data")
+    assert res.status_code == 200
+
+    data = res.json
+    assert "update_interval" in data
+
+async def test_config_get(client):
+    res = await client.get("/config")
+    assert res.status_code == 200
+    assert "Configurações".encode() in res.body
+
+async def test_config_post(client):
+    payload = {"update_interval": 2, "temp_threshold": 35, "humidity_threshold": 80}
+
+    res = await client.post("/config", body=payload)
+    assert res.status_code == 200
+    assert res.json["status"] == "ok"
+
+
+async def test_reset_config(client):
+    res = await client.post("/reset-config")
+    assert res.status_code == 200
+    assert res.json["status"] == "resetado"

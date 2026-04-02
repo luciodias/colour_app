@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard IoT</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<h1>📊 Dashboard IoT</h1>
+<div id="status">🔄 Sincronizando...</div>
+
+<canvas id="tempChart"></canvas>
+<canvas id="humChart"></canvas>
+<canvas id="alertChart"></canvas>
+
+<script>
+let tempData = [];
+let humData = [];
+let alertData = [];
+let labels = [];
+
+const tempChart = new Chart(document.getElementById('tempChart'), {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{ label: 'Temperatura', data: tempData, borderColor: 'red' }]
+    }
+});
+
+const humChart = new Chart(document.getElementById('humChart'), {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{ label: 'Humidade', data: humData, borderColor: 'blue' }]
+    }
+});
+
+const alertChart = new Chart(document.getElementById('alertChart'), {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{ label: 'Alertas', data: alertData, borderColor: 'orange' }]
+    }
+});
+
+async function fetchData() {
+    try {
+        const res = await fetch('/data');
+        const data = await res.json();
+
+        const time = new Date().toLocaleTimeString();
+
+        labels.push(time);
+        tempData.push(data.temperature);
+        humData.push(data.humidity);
+        alertData.push(data.alerts);
+
+        if (labels.length > 10) {
+            labels.shift();
+            tempData.shift();
+            humData.shift();
+            alertData.shift();
+        }
+
+        tempChart.update();
+        humChart.update();
+        alertChart.update();
+
+        document.getElementById('status').innerText = "✅ Sincronizado";
+
+    } catch (err) {
+        document.getElementById('status').innerText = "❌ Erro de conexão";
+    }
+}
+
+// Polling (substitui WebSocket no Microdot)
+setInterval(fetchData, 3000);
+</script>
+
+</body>
+</html>

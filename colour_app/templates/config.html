@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Configurações</title>
+</head>
+<body>
+
+<h1>⚙️ Configurações</h1>
+
+<form id="configForm">
+    Intervalo (s): <input type="number" id="interval"><br>
+    Temp Threshold: <input type="number" id="temp"><br>
+    Humidity Threshold: <input type="number" id="hum"><br>
+    <button type="submit">Salvar</button>
+</form>
+
+<button onclick="resetConfig()">Resetar</button>
+
+<script>
+async function loadConfig() {
+    const res = await fetch('/config-data');
+    const cfg = await res.json();
+
+    document.getElementById('interval').value = cfg.update_interval;
+    document.getElementById('temp').value = cfg.temp_threshold;
+    document.getElementById('hum').value = cfg.humidity_threshold;
+}
+
+document.getElementById('configForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    await fetch('/config', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            update_interval: document.getElementById('interval').value,
+            temp_threshold: document.getElementById('temp').value,
+            humidity_threshold: document.getElementById('hum').value
+        })
+    });
+
+    alert("Salvo!");
+});
+
+async function resetConfig() {
+    await fetch('/reset-config', { method: 'POST' });
+    loadConfig();
+}
+
+loadConfig();
+</script>
+
+</body>
+</html>
