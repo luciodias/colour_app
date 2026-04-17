@@ -4,6 +4,7 @@ import os
 import random
 import threading
 import time
+from typing import Any, Dict, Optional
 
 from microdot import Microdot, redirect, send_file
 
@@ -14,33 +15,33 @@ CONFIG_FILE = "config.json"
 # =========================
 # CONFIGURAÇÃO PADRÃO
 # =========================
-default_config = {"update_interval": 3, "temp_threshold": 30, "humidity_threshold": 70}
+default_config: Dict[str, Any] = {"update_interval": 3, "temp_threshold": 30, "humidity_threshold": 70}
 
 
 # =========================
 # CARREGAR CONFIG
 # =========================
-def load_config():
+def load_config() -> Dict[str, Any]:
     if not os.path.exists(CONFIG_FILE):
         save_config(default_config)
     with open(CONFIG_FILE, "r") as f:
         return json.load(f)
 
 
-def save_config(config):
+def save_config(config: Dict[str, Any]) -> None:
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f)
 
 
-config = load_config()
+config: Dict[str, Any] = load_config()
 
 # =========================
 # DADOS SIMULADOS
 # =========================
-sensor_data = {"temperature": 25, "humidity": 50, "alerts": 0}
+sensor_data: Dict[str, Any] = {"temperature": 25, "humidity": 50, "alerts": 0}
 
 
-def simulate_data():
+def simulate_data() -> None:
     """Thread simulando chegada de dados IoT"""
     global sensor_data
     while True:
@@ -66,17 +67,17 @@ threading.Thread(target=simulate_data, daemon=True).start()
 
 
 @app.route("/")
-def index(request):
+def index(request) -> str:
     return send_file("colour_app/templates/index.html")
 
 
 @app.route("/dashboard")
-def dashboard(request):
+def dashboard(request) -> str:
     return send_file("colour_app/templates/dashboard.html")
 
 
 @app.route("/config", methods=["GET", "POST"])
-def config_page(request):
+def config_page(request) -> Dict[str, Any]:
     global config
 
     if request.method == "POST":
@@ -98,18 +99,18 @@ def config_page(request):
 
 
 @app.route("/data")
-def data(request):
+def data(request) -> Dict[str, Any]:
     """Endpoint consumido pelo frontend (polling)"""
     return sensor_data
 
 
 @app.route("/config-data")
-def get_config(request):
+def get_config(request) -> Dict[str, Any]:
     return config
 
 
 @app.route("/reset-config", methods=["POST"])
-def reset_config(request):
+def reset_config(request) -> Dict[str, Any]:
     global config
     config = default_config
     save_config(config)
@@ -120,7 +121,7 @@ def reset_config(request):
 # CORS (básico)
 # =========================
 @app.after_request
-def after_request(request, response):
+def after_request(request, response) -> Any:
     response.headers["Access-Control-Allow-Origin"] = "*"
     return response
 
@@ -129,4 +130,4 @@ def after_request(request, response):
 # RUN
 # =========================
 if __name__ == "__main__":
-    app.run(debug=True, port=5000) # noqa
+    app.run(debug=True, port=5000)
