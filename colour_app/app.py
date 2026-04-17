@@ -70,6 +70,13 @@ threading.Thread(target=simulate_data, daemon=True).start()
 def index(request) -> str:
     return send_file("colour_app/templates/index.html")
 
+# Static route
+@app.route('/static/<path:path>')
+async def static(request, path):
+    if '..' in path:
+        # directory traversal is not allowed
+        return 'Not found', 404
+    return send_file('colour_app/static/' + path, max_age=86400)
 
 @app.route("/dashboard")
 def dashboard(request) -> str:
