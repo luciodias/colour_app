@@ -3,6 +3,13 @@ async def test_index(client):
     assert res.status_code == 200
     assert b"Sistema IoT" in res.body
 
+async def test_static_ok(client):
+    res = await client.get("/static/styles.css")
+    assert res.status_code == 200
+
+async def test_static_nok(client):
+    res = await client.get("/static/..")
+    assert res.status_code == 404
 
 async def test_dashboard(client):
     res = await client.get("/dashboard")
@@ -39,6 +46,9 @@ async def test_config_post(client):
     assert res.status_code == 200
     assert res.json["status"] == "ok"
 
+async def test_config_post_exception(client):
+    res = await client.post("/config")
+    assert res.status_code == 400
 
 async def test_reset_config(client):
     res = await client.post("/reset-config")
