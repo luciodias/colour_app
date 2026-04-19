@@ -15,7 +15,11 @@ CONFIG_FILE = "config.json"
 # =========================
 # CONFIGURAÇÃO PADRÃO
 # =========================
-default_config: Dict[str, Any] = {"update_interval": 3, "temp_threshold": 30, "humidity_threshold": 70}
+default_config: Dict[str, Any] = {
+    "update_interval": 3,
+    "temp_threshold": 0,
+    "humidity_threshold": 0,
+}
 
 
 # =========================
@@ -38,7 +42,7 @@ config: Dict[str, Any] = load_config()
 # =========================
 # DADOS SIMULADOS
 # =========================
-sensor_data: Dict[str, Any] = {"temperature": 25, "humidity": 50, "alerts": 0}
+sensor_data: Dict[str, Any] = {"temperature": 10, "humidity": 20, "alerts": 0}
 
 
 def simulate_data() -> None:
@@ -70,13 +74,15 @@ threading.Thread(target=simulate_data, daemon=True).start()
 def index(request) -> str:
     return send_file("colour_app/templates/index.html")
 
+
 # Static route
-@app.route('/static/<path:path>')
+@app.route("/static/<path:path>")
 async def static(request, path):
-    if '..' in path:
+    if ".." in path:
         # directory traversal is not allowed
-        return 'Not found', 404
-    return send_file('colour_app/static/' + path, max_age=86400)
+        return "Not found", 404
+    return send_file("colour_app/static/" + path, max_age=86400)
+
 
 @app.route("/dashboard")
 def dashboard(request) -> str:
@@ -118,7 +124,7 @@ def get_config(request) -> Dict[str, Any]:
 
 @app.route("/reset-config", methods=["POST"])
 def reset_config(request) -> Dict[str, Any]:
-    global config
+    global config # pragma: no cover
     config = default_config
     save_config(config)
     return {"status": "resetado"}
@@ -137,4 +143,4 @@ def after_request(request, response) -> Any:
 # RUN
 # =========================
 if __name__ == "__main__":
-    app.run(debug=True, port=5000) # pragma: no cover
+    app.run(debug=True, port=5000)  # pragma: no cover
