@@ -1,1 +1,1 @@
-{"update_interval": 3, "temp_threshold": 30, "humidity_threshold": 70}
+{"update_interval": 3, "temp_threshold": 0, "humidity_threshold": 0}
