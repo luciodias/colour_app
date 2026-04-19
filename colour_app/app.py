@@ -22,9 +22,7 @@ default_config: Dict[str, Any] = {
 }
 
 
-# =========================
 # CARREGAR CONFIG
-# =========================
 def load_config() -> Dict[str, Any]:
     if not os.path.exists(CONFIG_FILE):
         save_config(default_config)
@@ -39,9 +37,8 @@ def save_config(config: Dict[str, Any]) -> None:
 
 config: Dict[str, Any] = load_config()
 
-# =========================
+
 # DADOS SIMULADOS
-# =========================
 sensor_data: Dict[str, Any] = {"temperature": 10, "humidity": 20, "alerts": 0}
 
 
@@ -65,9 +62,7 @@ def simulate_data() -> None:
 # Inicia thread
 threading.Thread(target=simulate_data, daemon=True).start()
 
-# =========================
 # ROTAS
-# =========================
 
 
 @app.route("/")
@@ -124,7 +119,7 @@ def get_config(request) -> Dict[str, Any]:
 
 @app.route("/reset-config", methods=["POST"])
 def reset_config(request) -> Dict[str, Any]:
-    global config # pragma: no cover
+    global config  # pragma: no cover
     config = default_config
     save_config(config)
     return {"status": "resetado"}
