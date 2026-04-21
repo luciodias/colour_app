@@ -31,9 +31,14 @@ THE SOFTWARE.
 
 from struct import unpack_from
 from time import sleep_ms
-from tools.typing import Any, Optional
+from tools.typing import Any
 
-from micropython import const
+try:
+    from micropython import const # pyright: ignore[reportMissingImports]
+except ImportError:
+    def const(c):
+        return c
+
 
 AS7341_SMUX_SELECT = {
     # F1 through F4, CLEAR, NIR:
@@ -353,7 +358,7 @@ class AS7341:
         else:
             print(selection, "is unknown in AS7341_SMUX_SELECT")
 
-    def start_measure(self, selection: Optional[str] = None) -> None:
+    def start_measure(self, selection: str|None = None) -> None:
         """select SMUX configuration,
         Optionally select of change channel selection
         prepare and start measurement
