@@ -44,7 +44,7 @@ sensor_data: Dict[str, Any] = {"temperature": 10, "humidity": 20, "alerts": 0}
 
 def simulate_data() -> None:
     """Thread simulando chegada de dados IoT"""
-    global sensor_data
+    global sensor_data # pragma: no cover
     while True:
         sensor_data["temperature"] = round(random.uniform(20, 40), 2)
         sensor_data["humidity"] = round(random.uniform(30, 90), 2)
