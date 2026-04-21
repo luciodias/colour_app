@@ -4,9 +4,9 @@ import os
 import random
 import threading
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
-from microdot import Microdot, redirect, send_file
+from microdot import Microdot, send_file
 
 app = Microdot()
 
