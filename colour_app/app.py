@@ -2,7 +2,7 @@
 import json
 import os
 import random
-import threading
+import _thread
 import time
 from typing import Any, Dict
 
@@ -60,7 +60,7 @@ def simulate_data() -> None:
 
 
 # Inicia thread
-threading.Thread(target=simulate_data, daemon=True).start()
+_thread.start_new_thread(target=simulate_data, daemon=True).start()
 
 # ROTAS
 
