@@ -1,0 +1,20 @@
+svg {
+    width:475.9px;
+    height:526px;
+    border-width:1px; /* Estiliza a sua largura */
+    border-style:solid; /* Estiliza seu estilo*/
+    border-color:blue; /* Estiliza sua cor*/
+    role: img;
+}
+
+#grid-lines {
+    fill:none;
+    stroke:#B3B3B3;
+    stroke-width:0.5
+}
+
+.grid-line {
+    fill:none;
+    stroke:#B3B3B3;
+    stroke-width:0.5
+} 
