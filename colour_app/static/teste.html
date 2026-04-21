@@ -8,25 +8,14 @@
 </head>
 <body>
     <h1>Grade</h1>
-    <svg id="svg" width="475.9" height="526">
-        <defs>
-            <line id="lv" x1="0" y1="32" x2="0" y2="492.8" class="grid-line"/>
-        </defs>
-        <use x="73.4" href="#lv"/>
-        <use x="99" href="#lv"/>
-        <use x="124.6" href="#lv"/>
-        <use x="150.2" href="#lv"/>
-        <use x="175.8" href="#lv"/>
-        <use x="201.4" href="#lv"/>
-        <use x="227" href="#lv"/>
-        <use x="252.6" href="#lv"/>
-        <use x="278.2" href="#lv"/>
-        <use x="303.8" href="#lv"/>
-        <use x="329.4" href="#lv"/>
-        <use x="355" href="#lv"/>
-        <use x="380.6" href="#lv"/>
-        <use x="406.2" href="#lv"/>
-        <use x="431.8" href="#lv"/>
+    <svg id="svg" width="475.9" height="526" viewBox="0 0 100 100">
+        <!-- <symbol id="myDot" width="100%" height="100%" viewBox="-100 -100 100 100">
+            <line x1="0" y1="0" x2="100" y2="100" class="grid-line"/>
+            <circle r="10"/>
+        </symbol> -->
+        <circle cx="50" cy="100" r="10" transform="matrix(1 0 0 -1 0 100)"/>
+        <line x1="0" y1="0" x2="100" y2="100" class="grid-line"/>
+        <use href="#myDot" x="0" y="0" opacity="1.0" />
     </svg>
     <h1>Inline</h1>
     <svg id="svg" width="475.9" height="526">
