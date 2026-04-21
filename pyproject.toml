@@ -26,7 +26,8 @@ dev = [
 ]
 esp = [
     "esptool (>=5.2.0,<6.0.0)",
-    "mpremote (>=1.28.0,<2.0.0)"
+    "mpremote (>=1.28.0,<2.0.0)",
+    "mpy-cross (>=1.27.0.post2,<2.0.0)"
 ]
 
 [tool.pytest.ini_options]
@@ -36,3 +37,13 @@ asyncio_mode = "auto"
 omit = [
     "tests/*"
     ]
+
+[tool.taskipy.tasks]
+# pre_lint = 'typos'
+lint = 'ruff check'
+pre_format = 'ruff check --fix'
+format = 'ruff format'
+run = 'fastapi dev fast_zero/app.py'
+pre_test = 'task lint'
+test = 'pytest -s -x --cov=fast_zero -vv'
+post_test = 'coverage html'
