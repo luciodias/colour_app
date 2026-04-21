@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Espectro Visível Matemático</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #1a1a1a;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h2 { margin-top: 30px; font-weight: 300; }
+
+        /* Gradiente via CSS - Baseado na rotação de matiz (Hue) */
+        .espectro-css {
+            height: 100px;
+            width: 100%;
+            border-radius: 8px;
+            background: linear-gradient(to right, 
+                #4b0082 0%,    /* 380nm - Violeta */
+                #0000ff 15%,   /* 440nm - Azul */
+                #00ffff 30%,   /* 490nm - Ciano */
+                #00ff00 45%,   /* 510nm - Verde */
+                #ffff00 65%,   /* 580nm - Amarelo */
+                #ff7f00 80%,   /* 645nm - Laranja */
+                #ff0000 100%   /* 750nm - Vermelho */
+            );
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Espectro Visível (Implementação CSS)</h2>
+        <div class="espectro-css"></div>
+        <div class="labels">
+            <span>380nm</span>
+            <span>450nm</span>
+            <span>500nm</span>
+            <span>550nm</span>
+            <span>600nm</span>
+            <span>650nm</span>
+            <span>700nm</span>
+            <span>750nm</span>
+        </div>
+
+        <h2>Espectro Visível (Implementação SVG)</h2>
+        <svg width="100%" height="100" viewBox="0 0 800 100" preserveAspectRatio="none" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+            <defs>
+                <linearGradient id="visSpectrum" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%"   stop-color="#4b0082" /> 
+                    <stop offset="15%"  stop-color="#0000ff" /> 
+                    <stop offset="30%"  stop-color="#00ffff" /> 
+                    <stop offset="45%"  stop-color="#00ff00" /> 
+                    <stop offset="65%"  stop-color="#ffff00" /> 
+                    <stop offset="80%"  stop-color="#ff7f00" /> 
+                    <stop offset="100%" stop-color="#ff0000" /> 
+                </linearGradient>
+            </defs>
+            <rect width="800" height="100" fill="url(#visSpectrum)" />
+        </svg>
+    </div>
+
+</body>
+</html>
