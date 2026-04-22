@@ -12,7 +12,12 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{ include = "colour_app" }]
+packages = [
+    #{ include = "colour_app", from = "colour_app" }
+    #{ include = "colour_app" },
+    { include = "microdot", from = "colour_app" },
+    { include = "tools", from = "colour_app" },
+]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

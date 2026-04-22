@@ -2,14 +2,14 @@
 import json
 import os
 import random
-#import _thread
+
 import time
-from typing import Any, Dict
 
 from microdot import Microdot, send_file
+from tools.typing import Any, Dict
 
 app = Microdot()
-cwd = '' if 'colour_app' not in os.listdir() else 'colour_app/'
+cwd = "" if "colour_app" not in os.listdir() else "colour_app/"
 
 CONFIG_FILE = "config.json"
 
@@ -47,7 +47,7 @@ sensor_data: Dict[str, Any] = {"temperature": 10, "humidity": 20, "alerts": 0}
 
 def simulate_data() -> None:
     """Thread simulando chegada de dados IoT"""
-    global sensor_data # pragma: no cover
+    global sensor_data  # pragma: no cover
     while True:
         sensor_data["temperature"] = round(random.uniform(20, 40), 2)
         sensor_data["humidity"] = round(random.uniform(30, 90), 2)
@@ -63,7 +63,7 @@ def simulate_data() -> None:
 
 
 # Inicia thread
-#_thread.start_new_thread(target=simulate_data, daemon=True).start()
+# _thread.start_new_thread(target=simulate_data, daemon=True).start()
 
 # ROTAS
 
