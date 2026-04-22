@@ -24,10 +24,12 @@ default_config: Dict[str, Any] = {
 
 # CARREGAR CONFIG
 def load_config() -> Dict[str, Any]:
-    if not os.path.exists(CONFIG_FILE):
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            return json.load(f)
+    except (OSError, ValueError):
         save_config(default_config)
-    with open(CONFIG_FILE, "r") as f:
-        return json.load(f)
+        return default_config
 
 
 def save_config(config: Dict[str, Any]) -> None:
@@ -60,7 +62,7 @@ def simulate_data() -> None:
 
 
 # Inicia thread
-_thread.start_new_thread(target=simulate_data, daemon=True).start()
+#_thread.start_new_thread(target=simulate_data, daemon=True).start()
 
 # ROTAS
 
