@@ -534,22 +534,6 @@ files = [
 ]
 
 [[package]]
-name = "microdot"
-version = "2.6.0"
-description = "The impossibly small web framework for MicroPython"
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "microdot-2.6.0-py3-none-any.whl", hash = "sha256:abfb82ca31cc430174e4761cc7356adc4bff00ea758d437c2b258883dc63f464"},
-    {file = "microdot-2.6.0.tar.gz", hash = "sha256:363e3ebfc80b7e0415779848c9332e4e7fb7bd365ee54d3620abffe42ed82946"},
-]
-
-[package.extras]
-dev = ["tox"]
-docs = ["furo", "pyjwt", "sphinx"]
-
-[[package]]
 name = "mpremote"
 version = "1.28.0"
 description = "Tool for interacting remotely with MicroPython devices"
@@ -1055,4 +1039,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<4"
-content-hash = "8e4ad0da7aa62a1cf324ae17bf02be658909392f86c8e8dd2968ab6110b7df6e"
+content-hash = "8d814eaba3b6f68be82def73d2e132bd18dae788371dbed573dc85843cf91931"

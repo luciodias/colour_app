@@ -5,10 +5,11 @@ description = ""
 authors = [
     {name = "Lucio Dias",email = "luciodiass@gmail.com"}
 ]
+packages = [{ include = "colour_app" }]
 readme = "README.md"
 requires-python = ">=3.13,<4"
 dependencies = [
-    "microdot (>=2.6.0,<3.0.0)"
+    #"microdot (>=2.6.0,<3.0.0)"
 ]
 
 
