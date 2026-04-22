@@ -5,13 +5,14 @@ description = ""
 authors = [
     {name = "Lucio Dias",email = "luciodiass@gmail.com"}
 ]
-packages = [{ include = "colour_app" }]
 readme = "README.md"
 requires-python = ">=3.13,<4"
 dependencies = [
     #"microdot (>=2.6.0,<3.0.0)"
 ]
 
+[tool.poetry]
+packages = [{ include = "colour_app" }]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -50,3 +51,4 @@ format = 'ruff format'
 #test = 'pytest -s -x --cov=fast_zero -vv'
 #post_test = 'coverage html'
 build = 'poetry run python tools/build.py'
+
