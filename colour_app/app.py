@@ -2,13 +2,14 @@
 import json
 import os
 import random
-import _thread
+#import _thread
 import time
 from typing import Any, Dict
 
 from microdot import Microdot, send_file
 
 app = Microdot()
+cwd = '' if 'colour_app' not in os.listdir() else 'colour_app/'
 
 CONFIG_FILE = "config.json"
 
@@ -69,7 +70,7 @@ def simulate_data() -> None:
 
 @app.route("/")
 def index(request) -> str:
-    return send_file("colour_app/templates/index.html")
+    return send_file(f"{cwd}templates/index.html")
 
 
 # Static route
@@ -78,12 +79,12 @@ async def static(request, path):
     if ".." in path:
         # directory traversal is not allowed
         return "Not found", 404
-    return send_file("colour_app/static/" + path, max_age=86400)
+    return send_file(f"{cwd}static/" + path, max_age=86400)
 
 
 @app.route("/dashboard")
 def dashboard(request) -> str:
-    return send_file("colour_app/templates/dashboard.html")
+    return send_file(f"{cwd}templates/dashboard.html")
 
 
 @app.route("/config", methods=["GET", "POST"])
@@ -105,7 +106,7 @@ def config_page(request) -> Dict[str, Any]:
             return {"error": str(e)}, 400
 
     # GET
-    return send_file("colour_app/templates/config.html")
+    return send_file(f"{cwd}templates/config.html")
 
 
 @app.route("/data")
