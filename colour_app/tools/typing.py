@@ -6,23 +6,23 @@ def cast(type, val):
 
 
 def get_origin(type):
-    return None
+    return None # pragma: no cover
 
 
 def get_args(type):
-    return ()
+    return () # pragma: no cover
 
 
 def no_type_check(func):
-    return func
+    return func # pragma: no cover
 
 
 def overload(func):
-    return None
+    return None # pragma: no cover
 
 
 def override(func):
-    return func
+    return func # pragma: no cover
 
 
 class _AnyCall:
@@ -30,10 +30,10 @@ class _AnyCall:
         pass
 
     def __call__(*args, **kwargs):
-        pass
+        pass # pragma: no cover
 
     def __getitem__(self, arg):
-        return _anyCall
+        return _anyCall # pragma: no cover
 
 
 _anyCall = _AnyCall()
@@ -50,11 +50,11 @@ class Any:
     pass
 
 def TypeVar(name, *types, bound: Any | None = None, covariant=False, contravariant=False, infer_variance=False):
-    return None
+    return None # pragma: no cover
 
 
 def NewType(name, type):
-    return type
+    return type # pragma: no cover
 
 
 class BinaryIO:
