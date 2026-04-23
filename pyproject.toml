@@ -43,13 +43,15 @@ asyncio_mode = "auto"
 
 # COVERAGE
 [tool.coverage.run]
-# source = [
-#     "colour_app/*"
-# ]
+parallel = true
 omit = [
     "tests/*",
-    "tools/*"
+    # "tools/*"
     ]
+[tool.coverage.report]
+precision = 0
+skip_covered = true
+skip_empty = true
 
 # TASKIPY
 [tool.taskipy.tasks]
@@ -59,7 +61,7 @@ pre_format = 'ruff check --fix'
 format = 'ruff format'
 #run = 'fastapi dev fast_zero/app.py'
 #pre_test = 'task lint'
-#test = 'pytest -s -x --cov=fast_zero -vv'
-#post_test = 'coverage html'
+test = 'pytest -s -x --cov=colour_app -vv'
+post_test = 'coverage html'
 build = 'poetry run python tools/build.py'
 
