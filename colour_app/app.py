@@ -5,8 +5,8 @@ import random
 
 import time
 
-from microdot import Microdot, send_file
-from tools.typing import Any, Dict
+from libs.microdot import Microdot, send_file
+from libs.tools.typing import Any, Dict
 
 app = Microdot()
 cwd = "" if "colour_app" not in os.listdir() else "colour_app/"

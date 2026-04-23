@@ -13,9 +13,10 @@ dependencies = [
 
 [tool.poetry]
 packages = [
-    { include = "microdot", from = "colour_app" },
-    { include = "tools", from = "colour_app" },
-    { include = "as7341", from = "colour_app" },
+    { include = "libs", from = "colour_app" },
+#    { include = "microdot", from = "colour_app" },
+#    { include = "tools", from = "colour_app" },
+#    { include = "as7341", from = "colour_app" },
 ]
 
 [build-system]
