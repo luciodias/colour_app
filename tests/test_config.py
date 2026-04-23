@@ -1,9 +1,15 @@
 import os
 
-from colour_app.app import default_config, load_config, save_config
-
+from colour_app.app import (
+    default_config, load_config, save_config,
+    simulate_data, sensor_data,
+)
 CONFIG_FILE = "config.json"
 
+# def test_simulate_data():
+#     aux_data = sensor_data
+#     simulate_data()
+#     assert aux_data != sensor_data.__repr__
 
 def test_save_and_load_config():
     test_config = {
