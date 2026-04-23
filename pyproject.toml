@@ -13,8 +13,9 @@ dependencies = [
 
 [tool.poetry]
 packages = [
+    { include = "colour_app"},
     { include = "libs", from = "colour_app" },
-#    { include = "microdot", from = "colour_app" },
+    { include = "utemplate", from = "colour_app/libs" },
 #    { include = "tools", from = "colour_app" },
 #    { include = "as7341", from = "colour_app" },
 ]
