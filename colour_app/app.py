@@ -5,11 +5,16 @@ import random
 
 import time
 
-from libs.microdot import Microdot, send_file
+#from utemplate import compiled
+from libs.microdot import Microdot, Response, send_file
+from libs.microdot.utemplate import Template
 from libs.tools.typing import Any, Dict
 
 app = Microdot()
+Response.default_content_type = 'text/html'
+
 cwd = "" if "colour_app" not in os.listdir() else "colour_app/"
+Template.initialize(f'{cwd}templates')
 
 CONFIG_FILE = "config.json"
 
@@ -69,9 +74,9 @@ def simulate_data() -> None:
 
 
 @app.route("/")
-def index(request) -> str:
-    return send_file(f"{cwd}templates/index.html")
-
+async def index(request) -> str:
+    #return Template('index.html').generate(name='Name 2')
+    return send_file(f"{cwd}templates/pwa.html")
 
 # Static route
 @app.route("/static/<path:path>")
