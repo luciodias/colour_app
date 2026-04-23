@@ -13,10 +13,9 @@ dependencies = [
 
 [tool.poetry]
 packages = [
-    #{ include = "colour_app", from = "colour_app" }
-    #{ include = "colour_app" },
     { include = "microdot", from = "colour_app" },
     { include = "tools", from = "colour_app" },
+    { include = "as7341", from = "colour_app" },
 ]
 
 [build-system]
@@ -38,14 +37,21 @@ esp = [
     "mpy-cross (>=1.27.0.post2,<2.0.0)"
 ]
 
+# PYTEST
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 
+# COVERAGE
 [tool.coverage.run]
+# source = [
+#     "colour_app/*"
+# ]
 omit = [
     "tests/*",
     "tools/*"
     ]
+
+# TASKIPY
 [tool.taskipy.tasks]
 # pre_lint = 'typos'
 lint = 'ruff check'
