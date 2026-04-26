@@ -1,5 +1,5 @@
+from libs.as7341.as7341 import AS7341, AS7341_MODE_SPM
 try:
-    from libs.as7341.as7341 import AS7341, AS7341_MODE_SPM
     from machine import I2C, Pin
 
 except ImportError as e:
@@ -11,7 +11,6 @@ class Sensor(AS7341):
 
     def __init__(self):
         """Inicializa o sensor com configurações padrão"""
-
         super().__init__(I2C(1, scl=Pin(4), sda=Pin(5), freq=100000))
         self.address = " ".join(["0x{:02X}".format(x) for x in self._bus.scan()])
         super().set_measure_mode(AS7341_MODE_SPM)
@@ -39,20 +38,3 @@ class Sensor(AS7341):
             "clr": clr,
             "nir": nir,
         }
-
-
-# # Usar a nova classe SENSOR
-# try:
-#     sensor = SENSOR(i2c)
-
-#     while True:
-#         # Obter e imprimir medições formatadas
-#         measurements = sensor.get_formatted_measurements()
-#         for channel, value in measurements.items():
-#             print(value)
-#         print("------------------------")
-
-# except KeyboardInterrupt:
-#     print("Interrupted from keyboard")
-
-# sensor.disable()
