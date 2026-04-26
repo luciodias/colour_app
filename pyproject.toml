@@ -50,6 +50,7 @@ asyncio_mode = "auto"
 # ]
 omit = [
     "tests/*",
+    "colour_app/libs/*",
     "tools/*"
     ]
 
