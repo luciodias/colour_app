@@ -3,7 +3,7 @@ import os
 async def test_index(client):
     res = await client.get("/")
     assert res.status_code == 200
-    assert b"Sistema IoT" in res.body
+    assert b"Modern PWA Template" in res.body
 
 async def test_save_config(client,monkeypatch):
     res = await client.get("/")
