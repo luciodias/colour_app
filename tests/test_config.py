@@ -2,7 +2,6 @@ import os
 
 from colour_app.app import (
     default_config, load_config, save_config,
-    simulate_data, sensor_data,
 )
 CONFIG_FILE = "config.json"
 
