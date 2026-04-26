@@ -9,6 +9,7 @@ from libs.tools.typing import Any
 try:
     from sensor import Sensor
     color_sensor = Sensor()
+    print('Import Sensor OK ')
 except ImportError as e:
     print(e)
 except NameError as e:
@@ -77,18 +78,18 @@ async def static(request, path):
     return send_file(f"{cwd}static/" + path, max_age=86400)
 
 @app.route("/measure")
-def measure(request) -> str:
+async def measure(request) -> str:
     if color_sensor:
         return color_sensor.get_measurements,200,{'Content-Type': 'application/json'}
     return 503
 
 @app.route("/dashboard")
-def dashboard(request) -> str:
+async def dashboard(request) -> str:
     return send_file(f"{cwd}templates/dashboard.html")
 
 
 @app.route("/config", methods=["GET", "POST"])
-def config_page(request) -> dict[str, Any]:
+async def config_page(request) -> dict[str, Any]:
     global config
 
     if request.method == "POST":
@@ -110,18 +111,18 @@ def config_page(request) -> dict[str, Any]:
 
 
 @app.route("/data")
-def data(request) -> dict[str, Any]:
+async def data(request) -> dict[str, Any]:
     """Endpoint consumido pelo frontend (polling)"""
     return sensor_data
 
 
 @app.route("/config-data")
-def get_config(request) -> dict[str, Any]:
+async def get_config(request) -> dict[str, Any]:
     return config
 
 
 @app.route("/reset-config", methods=["POST"])
-def reset_config(request) -> dict[str, Any]:
+async def reset_config(request) -> dict[str, Any]:
     global config  # pragma: no cover
     config = default_config
     save_config(config)
@@ -132,7 +133,7 @@ def reset_config(request) -> dict[str, Any]:
 # CORS (básico)
 # =========================
 @app.after_request
-def after_request(request, response) -> Any:
+async def after_request(request, response) -> Any:
     response.headers["Access-Control-Allow-Origin"] = "*"
     return response
 
