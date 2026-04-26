@@ -1,22 +1,35 @@
 # from microdot.utemplate import Template
 import json
 import os
-import random
 
-import time
+from libs.microdot import Microdot, Response, send_file
+from libs.microdot.utemplate import Template
+from libs.tools.typing import Any
 
-from microdot import Microdot, send_file
-from tools.typing import Any, Dict
+color_sensor = None
+try:
+    from sensor import Sensor
+
+    color_sensor = Sensor()
+except ImportError as e:
+    print(e)
+except NameError as e:
+    print(e)
+
+print(color_sensor)
 
 app = Microdot()
+Response.default_content_type = "text/html"
+
 cwd = "" if "colour_app" not in os.listdir() else "colour_app/"
+Template.initialize(f"{cwd}templates")
 
 CONFIG_FILE = "config.json"
 
 # =========================
 # CONFIGURAÇÃO PADRÃO
 # =========================
-default_config: Dict[str, Any] = {
+default_config: dict[str, Any] = {
     "update_interval": 3,
     "temp_threshold": 0,
     "humidity_threshold": 0,
@@ -24,7 +37,7 @@ default_config: Dict[str, Any] = {
 
 
 # CARREGAR CONFIG
-def load_config() -> Dict[str, Any]:
+def load_config() -> dict[str, Any]:
     try:
         with open(CONFIG_FILE, "r") as f:
             return json.load(f)
@@ -33,33 +46,16 @@ def load_config() -> Dict[str, Any]:
         return default_config
 
 
-def save_config(config: Dict[str, Any]) -> None:
+def save_config(config: dict[str, Any]) -> None:
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f)
 
 
-config: Dict[str, Any] = load_config()
+config: dict[str, Any] = load_config()
 
 
 # DADOS SIMULADOS
-sensor_data: Dict[str, Any] = {"temperature": 10, "humidity": 20, "alerts": 0}
-
-
-def simulate_data() -> None:
-    """Thread simulando chegada de dados IoT"""
-    global sensor_data  # pragma: no cover
-    while True:
-        sensor_data["temperature"] = round(random.uniform(20, 40), 2)
-        sensor_data["humidity"] = round(random.uniform(30, 90), 2)
-
-        # Verifica alertas
-        sensor_data["alerts"] = 0
-        if sensor_data["temperature"] > config["temp_threshold"]:
-            sensor_data["alerts"] += 1
-        if sensor_data["humidity"] > config["humidity_threshold"]:
-            sensor_data["alerts"] += 1
-
-        time.sleep(config["update_interval"])
+sensor_data: dict[str, Any] = {"temperature": 10, "humidity": 20, "alerts": 0}
 
 
 # Inicia thread
@@ -69,26 +65,47 @@ def simulate_data() -> None:
 
 
 @app.route("/")
-def index(request) -> str:
-    return send_file(f"{cwd}templates/index.html")
+async def index(request) -> str:
+    # return Template('index.html').generate(name='Name 2')
+    return send_file(f"{cwd}templates/pwa.html")
+
+
+@app.route("/favicon.ico")
+async def favicon(request) -> str:
+    print(request.path)
+    return send_file(f"{cwd}static/favicon.ico")
 
 
 # Static route
 @app.route("/static/<path:path>")
-async def static(request, path):
+def static(request, path):
     if ".." in path:
         # directory traversal is not allowed
         return "Not found", 404
     return send_file(f"{cwd}static/" + path, max_age=86400)
 
 
+@app.route("/measure")
+async def measure(request) -> str:
+    async def get_measure():
+        yield color_sensor.get_measurements()
+
+    if color_sensor:
+        return (
+            color_sensor.get_measurements(),
+            200,
+            {"Content-Type": "application/json"},
+        )
+    return 503
+
+
 @app.route("/dashboard")
-def dashboard(request) -> str:
+async def dashboard(request) -> str:
     return send_file(f"{cwd}templates/dashboard.html")
 
 
 @app.route("/config", methods=["GET", "POST"])
-def config_page(request) -> Dict[str, Any]:
+async def config_page(request) -> dict[str, Any]:
     global config
 
     if request.method == "POST":
@@ -110,18 +127,18 @@ def config_page(request) -> Dict[str, Any]:
 
 
 @app.route("/data")
-def data(request) -> Dict[str, Any]:
+async def data(request) -> dict[str, Any]:
     """Endpoint consumido pelo frontend (polling)"""
     return sensor_data
 
 
 @app.route("/config-data")
-def get_config(request) -> Dict[str, Any]:
+async def get_config(request) -> dict[str, Any]:
     return config
 
 
 @app.route("/reset-config", methods=["POST"])
-def reset_config(request) -> Dict[str, Any]:
+async def reset_config(request) -> dict[str, Any]:
     global config  # pragma: no cover
     config = default_config
     save_config(config)
@@ -131,10 +148,10 @@ def reset_config(request) -> Dict[str, Any]:
 # =========================
 # CORS (básico)
 # =========================
-@app.after_request
-def after_request(request, response) -> Any:
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    return response
+# @app.after_request
+# async def after_request(request, response) -> Any:
+#     response.headers["Access-Control-Allow-Origin"] = "*"
+#     return response
 
 
 # =========================

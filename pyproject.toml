@@ -13,9 +13,11 @@ dependencies = [
 
 [tool.poetry]
 packages = [
-    { include = "microdot", from = "colour_app" },
-    { include = "tools", from = "colour_app" },
-    { include = "as7341", from = "colour_app" },
+    { include = "colour_app"},
+    { include = "libs", from = "colour_app" },
+    { include = "utemplate", from = "colour_app/libs" },
+#    { include = "tools", from = "colour_app" },
+#    { include = "as7341", from = "colour_app" },
 ]
 
 [build-system]
@@ -46,7 +48,8 @@ asyncio_mode = "auto"
 parallel = true
 omit = [
     "tests/*",
-    # "tools/*"
+    "colour_app/libs/*",
+    "tools/*"
     ]
 [tool.coverage.report]
 precision = 0

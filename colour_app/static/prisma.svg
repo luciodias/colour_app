@@ -1,0 +1,40 @@
+<svg width="220" height="140" viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradiente do prisma -->
+    <linearGradient id="prismGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#dfe6ee" stop-opacity="0.4"/>
+    </linearGradient>
+
+    <!-- Gradiente da luz branca -->
+    <linearGradient id="lightGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="1"/>
+    </linearGradient>
+
+    <!-- Gradiente do espectro (ROTACIONADO 90°) -->
+    <linearGradient id="spectrumGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="red"/>
+      <stop offset="16%" stop-color="orange"/>
+      <stop offset="32%" stop-color="yellow"/>
+      <stop offset="48%" stop-color="green"/>
+      <stop offset="64%" stop-color="blue"/>
+      <stop offset="80%" stop-color="indigo"/>
+      <stop offset="100%" stop-color="violet"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Luz entrando -->
+  <rect x="0" y="65" width="70" height="4" fill="url(#lightGradient)" />
+
+  <!-- Prisma -->
+  <polygon points="90,20 150,120 30,120"
+           fill="url(#prismGradient)"
+           stroke="#cfd6df"
+           stroke-width="1.5"/>
+
+  <!-- Espectro saindo -->
+  <polygon points="110,70 220,30 220,110"
+           fill="url(#spectrumGradient)"
+           opacity="0.85"/>
+</svg>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Site Title{% endblock %}</title>
+    
+    <!-- Placeholder for linking base CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> 
+    <!-- Placeholder for component-specific styles -->
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+
+    <!-- 1. Header with SVG Icon -->
+    <header class="site-header">
+        <div class="header-logo">
+            <!-- Placeholder SVG Icon -->
+            <svg class="site-icon" viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                <!-- Replace this entire path/shape with your actual SVG code -->
+                <path d="M12 2L2 12h3v10h14v-10h3L12 2z"/>
+            </svg>
+            <h1>{{ config.site_name | default('My Awesome Site') }}</h1>
+        </div>
+        
+        <!-- 2. Navbar and Menu -->
+        <nav class="main-nav">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="#">Home</a></li>
+                <li class="nav-item"><a href="#">About</a></li>
+                <li class="nav-item"><a href="#">Services</a></li>
+                <!-- Example of a dropdown menu item if needed -->
+                <li class="nav-item dropdown">
+                    <a href="#">Menu ▼</a>
+                    <!-- Dropdown content would be rendered here -->
+                </li>
+                <li class="nav-item"><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- 3. Dynamic Content Area -->
+        <main class="dynamic-content">
+            {% block content %}
+                <!-- Default content if no block is filled -->
+                <p>Welcome to the dynamic content area. This block will be filled by child templates (e.g., dashboard.html, index.html).</p>
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- 4. Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; {% now "Y" %} {{ config.site_name | default('My Awesome Site') }}. Todos os direitos reservados.</p>
+            <div class="footer-links">
+                <a href="#">Privacy</a> | <a href="#">Terms</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Placeholder -->
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>
