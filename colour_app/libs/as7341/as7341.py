@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 from struct import unpack_from
 from time import sleep_ms
-from tools.typing import Any
+from libs.tools.typing import Any
 
 try:
     from micropython import const # pyright: ignore[reportMissingImports]
