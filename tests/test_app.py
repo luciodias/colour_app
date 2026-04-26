@@ -5,6 +5,10 @@ async def test_index(client):
     assert res.status_code == 200
     assert b"Modern PWA Template" in res.body
 
+async def test_favicon(client):
+    res = await client.get("/favicon.ico")
+    assert res.status_code == 200
+    
 async def test_save_config(client,monkeypatch):
     res = await client.get("/")
     monkeypatch.setattr(os.path, 'exists', lambda path: False)  # Simulate file not exists
