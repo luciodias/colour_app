@@ -6,16 +6,17 @@ from libs.microdot import Microdot, Response, send_file
 from libs.microdot.utemplate import Template
 from libs.tools.typing import Any
 
+color_sensor = None
 try:
     from sensor import Sensor
+
     color_sensor = Sensor()
-    print('Import Sensor OK ')
 except ImportError as e:
     print(e)
 except NameError as e:
     print(e)
-else:
-    color_sensor = None
+
+print(color_sensor)
 
 app = Microdot()
 Response.default_content_type = "text/html"
@@ -69,19 +70,34 @@ async def index(request) -> str:
     return send_file(f"{cwd}templates/pwa.html")
 
 
+@app.route("/favicon.ico")
+async def favicon(request) -> str:
+    print(request.path)
+    return send_file(f"{cwd}static/favicon.ico")
+
+
 # Static route
 @app.route("/static/<path:path>")
-async def static(request, path):
+def static(request, path):
     if ".." in path:
         # directory traversal is not allowed
         return "Not found", 404
     return send_file(f"{cwd}static/" + path, max_age=86400)
 
+
 @app.route("/measure")
 async def measure(request) -> str:
+    async def get_measure():
+        yield color_sensor.get_measurements()
+
     if color_sensor:
-        return color_sensor.get_measurements,200,{'Content-Type': 'application/json'}
+        return (
+            color_sensor.get_measurements(),
+            200,
+            {"Content-Type": "application/json"},
+        )
     return 503
+
 
 @app.route("/dashboard")
 async def dashboard(request) -> str:
@@ -132,10 +148,10 @@ async def reset_config(request) -> dict[str, Any]:
 # =========================
 # CORS (básico)
 # =========================
-@app.after_request
-async def after_request(request, response) -> Any:
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    return response
+# @app.after_request
+# async def after_request(request, response) -> Any:
+#     response.headers["Access-Control-Allow-Origin"] = "*"
+#     return response
 
 
 # =========================
