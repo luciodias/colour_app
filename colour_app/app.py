@@ -1,6 +1,8 @@
 # from microdot.utemplate import Template
 import json
 import os
+import ssl
+import sys
 
 from libs.microdot import Microdot, Response, send_file
 from libs.microdot.utemplate import Template
@@ -158,4 +160,9 @@ async def reset_config(request) -> dict[str, Any]:
 # RUN
 # =========================
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)  # pragma: no cover
+    ext = 'der' if sys.implementation.name == 'micropython' else 'pem'
+    sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    print(f"{cwd}certs/private." + ext, f"{cwd}certs/private.key")
+    sslctx.load_cert_chain(f"{cwd}certs/private." + ext, f"{cwd}certs/private.key")
+    #app.run(port=4443, debug=True, ssl=sslctx)
+    app.run(debug=True, port=5000, ssl=sslctx)  # pragma: no cover
