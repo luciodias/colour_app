@@ -1,6 +1,6 @@
 from libs.as7341.as7341 import AS7341, AS7341_MODE_SPM
 try:
-    from machine import I2C, Pin
+    from machine import I2C, Pin # pyright: ignore[reportMissingImports]
 
 except ImportError as e:
     print(e)
