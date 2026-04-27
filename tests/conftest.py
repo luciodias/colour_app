@@ -1,5 +1,5 @@
 import pytest
-from microdot.test_client import TestClient
+from colour_app.libs.microdot.test_client import TestClient
 
 from colour_app import app
 
