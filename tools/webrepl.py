@@ -8,7 +8,7 @@ import sys
 import os
 import struct
 try:
-    import usocket as socket
+    import usocket as socket # pyright: ignore[reportMissingImports]
 except ImportError:
     import socket
 
@@ -33,7 +33,7 @@ def debugmsg(msg):
 
 
 if USE_BUILTIN_UWEBSOCKET:
-    from uwebsocket import websocket
+    from uwebsocket import websocket # pyright: ignore[reportMissingImports]
 else:
     class websocket:
 
@@ -42,11 +42,11 @@ else:
             self.buf = b""
 
         def write(self, data, frame=WEBREPL_FRAME_BIN):
-            l = len(data)
-            if l < 126:
-                hdr = struct.pack(">BB", frame, l)
+            lenth = len(data)
+            if lenth < 126:
+                hdr = struct.pack(">BB", frame, lenth)
             else:
-                hdr = struct.pack(">BBH", frame, 126, l)
+                hdr = struct.pack(">BBH", frame, 126, lenth)
             self.s.send(hdr)
             self.s.send(data)
 
@@ -121,7 +121,8 @@ def get_ver(ws):
 
 
 def do_repl(ws):
-    import termios, select
+    import select
+    import termios
 
     class ConsolePosix:
         def __init__(self):
@@ -277,11 +278,11 @@ Upgrade: websocket\r
 Sec-WebSocket-Key: foo\r
 \r
 """)
-    l = cl.readline()
+    line = cl.readline()
 #    print(l)
     while 1:
-        l = cl.readline()
-        if l == b"\r\n":
+        line = cl.readline()
+        if line == b"\r\n":
             break
 #        sys.stdout.write(l)
 
