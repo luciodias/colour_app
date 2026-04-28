@@ -1,4 +1,5 @@
 # from microdot.utemplate import Template
+import asyncio
 import json
 import os
 import ssl
@@ -154,14 +155,17 @@ async def reset_config(request) -> dict[str, Any]:
 # async def after_request(request, response) -> Any:
 #     response.headers["Access-Control-Allow-Origin"] = "*"
 #     return response
-
+async def main():
+    server = asyncio.create_task(app.start_server(debug=True, port=80))
+    await server
+    ext = 'der' if sys.implementation.name == 'micropython' else 'pem'
+    sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
+    sserver = asyncio.create_task(app.start_server(debug=True, port=443, ssl=sslctx))
+    await sserver
 
 # =========================
 # RUN
 # =========================
 if __name__ == "__main__":
-    ext = 'der' if sys.implementation.name == 'micropython' else 'pem'
-    sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
-    app.run(debug=True, port=443, ssl=sslctx)  # pragma: no cover
-    # app.run(debug=True, port=80)
+    asyncio.run(main())

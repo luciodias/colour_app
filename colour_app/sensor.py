@@ -18,14 +18,14 @@ class Sensor(AS7341):
         super().set_astep(599)  # 1.67 ms
         super().set_again(4)  # factor 8 (with pretty much light)
 
-    def get_measurements(self):
+    async def get_measurements(self):
         if not self.isconnected():
             return {"error": "Sensor não conectado"}
 
         self.start_measure("F1F4CN")
-        f1, f2, f3, f4, clr, nir = self.get_spectral_data()
+        f1, f2, f3, f4, clr, nir = await self.get_spectral_data()
         self.start_measure("F5F8CN")
-        f5, f6, f7, f8, clr, nir = self.get_spectral_data()
+        f5, f6, f7, f8, clr, nir = await self.get_spectral_data()
         return {
             "f1": f1,
             "f2": f2,
