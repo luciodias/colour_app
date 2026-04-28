@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Gráfico SVG com API</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #fff;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    svg {
+      background: #1e293b;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .bar {
+      /* fill: #38bdf8; */
+      transition: all 0.5s ease;
+    }
+
+    .bar:hover {
+      fill: #0ea5e9;
+    }
+
+    .label {
+      fill: #fff;
+      font-size: 12px;
+      text-anchor: middle;
+
+    transition: height 0.5s ease, y 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Gráfico em Tempo Real</h1>
+
+<svg id="chart" width="600" height="300"></svg>
+
+<script>
+
+const svg = document.getElementById("chart");
+const width = 600;
+const height = 300;
+const barWidth = 40;
+const gap = 20;
+
+const keys = ["f1","f2","f3","f4","f5","f6","f7","f8","clr","nir"];
+
+const colors = [
+  "#7030A0",
+  "#002060",
+  "#00B0f0",
+  "#00ffff",
+  "#00b050",
+  "#ffff00",
+  "#ffc000",
+  "#ff0000",
+  "#ffaa99",
+  "#ffaa99",
+];
+
+function createBars() {
+  keys.forEach((key, i) => {
+    const x = i * (barWidth + gap) + 30;
+
+    // barra
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", x);
+    rect.setAttribute("y", height);
+    rect.setAttribute("width", barWidth);
+    rect.setAttribute("height", 0);
+    rect.setAttribute("class", "bar");
+    rect.setAttribute("id", "bar-" + key);
+    rect.setAttribute("fill", colors[i]);
+
+    // label
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("x", x + barWidth / 2);
+    label.setAttribute("y", height - 5);
+    label.textContent = key;
+    label.setAttribute("class", "label");
+
+    svg.appendChild(rect);
+    svg.appendChild(label);
+  });
+}
+
+function updateChart(data) {
+  const maxValue = Math.max(...Object.values(data));
+
+  keys.forEach((key) => {
+    const value = data[key] || 0;
+    const bar = document.getElementById("bar-" + key);
+
+    const scaledHeight = (value / maxValue) * (height - 40);
+
+    bar.setAttribute("y", height - scaledHeight);
+    bar.setAttribute("height", scaledHeight);
+  });
+}
+
+async function fetchData() {
+  try {
+    const response = await fetch('../../measure');                   //API
+    const data = await response.json();
+
+    updateChart(data);
+  } catch (error) {
+    console.error("Erro ao buscar dados:", error);
+  }
+}
+
+// inicializa
+createBars();
+fetchData();
+
+// atualiza a cada 5 segundos
+setInterval(fetchData, 5000);
+</script>
+
+</body>
+</html>
