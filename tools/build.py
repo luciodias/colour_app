@@ -16,11 +16,10 @@ def build_project():
     # We iterate over all files matching *.py
     for py_file in Path(".").rglob("*.py"):
         # Skip the build script itself if it's in the directory being scanned
-        if str(py_file) == "build.py":
-            continue
         relative_path = py_file.relative_to(Path("."))
         dir_name = relative_path.parent
-        dir_path_str = str(relative_path.parent)
+        if str(relative_path.parent) in ("tools"):
+            continue
         build_dir = Path("build") / dir_name
         file_name_base = py_file.stem
         mpy_file = build_dir / f"{file_name_base}.mpy"
