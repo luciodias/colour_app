@@ -57,16 +57,7 @@ def save_config(config: dict[str, Any]) -> None:
 config: dict[str, Any] = load_config()
 
 
-# DADOS SIMULADOS
-sensor_data: dict[str, Any] = {"temperature": 10, "humidity": 20, "alerts": 0}
-
-
-# Inicia thread
-# _thread.start_new_thread(target=simulate_data, daemon=True).start()
-
 # ROTAS
-
-
 @app.route("/")
 async def index(request) -> str:
     # return Template('index.html').generate(name='Name 2')
@@ -129,12 +120,6 @@ async def config_page(request) -> dict[str, Any]:
     return send_file(f"{cwd}templates/config.html")
 
 
-@app.route("/data")
-async def data(request) -> dict[str, Any]:
-    """Endpoint consumido pelo frontend (polling)"""
-    return sensor_data
-
-
 @app.route("/config-data")
 async def get_config(request) -> dict[str, Any]:
     return config
@@ -158,11 +143,12 @@ async def reset_config(request) -> dict[str, Any]:
 async def main():
     server = asyncio.create_task(app.start_server(debug=True, port=80))
     await server
-    ext = 'der' if sys.implementation.name == 'micropython' else 'pem'
+    ext = "der" if sys.implementation.name == "micropython" else "pem"
     sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
     sserver = asyncio.create_task(app.start_server(debug=True, port=443, ssl=sslctx))
     await sserver
+
 
 # =========================
 # RUN
