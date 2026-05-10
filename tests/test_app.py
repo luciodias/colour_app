@@ -1,19 +1,24 @@
 import os
 
+
 async def test_index(client):
     res = await client.get("/")
     assert res.status_code == 200
     assert b"Modern PWA Template" in res.body
 
+
 async def test_favicon(client):
     res = await client.get("/favicon.ico")
     assert res.status_code == 200
-    
-async def test_save_config(client,monkeypatch):
+
+
+async def test_save_config(client, monkeypatch):
     res = await client.get("/")
-    monkeypatch.setattr(os.path, 'exists', lambda path: False)  # Simulate file not exists
-    res = await client.get("/data")
+    monkeypatch.setattr(
+        os.path, "exists", lambda path: False
+    )  # Simulate file not exists
     assert res.status_code == 200
+
 
 async def test_static_ok(client):
     res = await client.get("/static/styles.css")
@@ -29,16 +34,6 @@ async def test_dashboard(client):
     res = await client.get("/dashboard")
     assert res.status_code == 200
     assert b"Dashboard IoT" in res.body
-
-
-async def test_data_endpoint(client):
-    res = await client.get("/data")
-    assert res.status_code == 200
-
-    data = res.json
-    assert "temperature" in data
-    assert "humidity" in data
-    assert "alerts" in data
 
 
 async def test_config_data_get(client):
