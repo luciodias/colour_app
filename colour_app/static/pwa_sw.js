@@ -1,10 +1,16 @@
 const CACHE_NAME = 'site-v1';
 const ASSETS = [
     '/',
-    '/index.html',
-  //'/static/style.css',
-    '/static/script.js',
-    '/static/manifest.json'
+ // '/index.html',
+    'favicon.ico',
+    '/static/styles.css',
+    '/static/pwa.css',
+    '/static/svg.css',
+    '/static/pwa.js',
+    '/static/manifest.json',
+    '/static/prisma.svg',
+    '/static/chart.html',
+    '/static/arco_iris.html',
 ];
 
 // Instalação: Cacheia arquivos estáticos
