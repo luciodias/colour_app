@@ -62,11 +62,11 @@ class Sensor(AS7341):
             return {"error": "Sensor não conectado"}
 
         await self.start_measure("F1F4CN")
-        f1, f2, f3, f4, clr, nir = await self.get_spectral_data()
+        f1, f2, f3, f4, clr, nir = self.get_spectral_data()
         await self.start_measure("F5F8CN")
         f5, f6, f7, f8, clr, nir = self.get_spectral_data()
         await self.start_measure("FD")
-        fd = self.get_spectral_data()
+        *_, fd = self.get_spectral_data()
         return {
             "f1": f1,
             "f2": f2,
