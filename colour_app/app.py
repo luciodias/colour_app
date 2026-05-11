@@ -81,12 +81,11 @@ def static(request, path):
 
 @app.route("/measure")
 async def measure(request) -> str:
-    async def get_measure():
-        yield color_sensor.get_measurements()
-
     if color_sensor:
+        m = await color_sensor.get_measurements()
+        print(m)
         return (
-            color_sensor.get_measurements(),
+            m,
             200,
             {"Content-Type": "application/json"},
         )
@@ -141,8 +140,8 @@ async def reset_config(request) -> dict[str, Any]:
 #     response.headers["Access-Control-Allow-Origin"] = "*"
 #     return response
 async def main():
-    server = asyncio.create_task(app.start_server(debug=True, port=80))
-    await server
+    # server = asyncio.create_task(app.start_server(debug=True, port=80))
+    #await server
     ext = "der" if sys.implementation.name == "micropython" else "pem"
     sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
