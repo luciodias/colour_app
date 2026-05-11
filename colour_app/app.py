@@ -73,11 +73,14 @@ async def favicon(request) -> str:
 # Static route
 @app.route("/static/<path:path>")
 def static(request, path):
-    if ".." in path:
-        # directory traversal is not allowed
-        return "Not found", 404
-    return send_file(f"{cwd}static/" + path, max_age=86400)
-
+    try:
+        if ".." in path:
+            # directory traversal is not allowed
+            return "Not found", 404
+        return send_file(f"{cwd}static/" + path, max_age=86400)
+    except OSError as e:
+        print(path)
+        raise e
 
 @app.route("/measure")
 async def measure(request) -> str:
