@@ -7,6 +7,7 @@ import sys
 
 from libs.microdot import Microdot, Response, send_file
 from libs.microdot.utemplate import Template
+from libs.microdot.websocket import with_websocket
 from libs.tools.typing import Any
 
 color_sensor = None
@@ -78,9 +79,9 @@ def static(request, path):
             # directory traversal is not allowed
             return "Not found", 404
         return send_file(f"{cwd}static/" + path, max_age=86400)
-    except OSError as e:
+    except (OSError, FileNotFoundError):
         print(path)
-        raise e
+        raise(OSError)
 
 @app.route("/measure")
 async def measure(request) -> str:
@@ -93,6 +94,16 @@ async def measure(request) -> str:
             {"Content-Type": "application/json"},
         )
     return 503
+
+@app.route('/ws')
+@with_websocket
+async def ws(request, ws):
+    try:
+        while True:
+            message = await ws.receive()
+            await ws.send(message)
+    except asyncio.CancelledError:
+        print('Client disconnected!')
 
 
 @app.route("/dashboard")
@@ -148,7 +159,10 @@ async def main():
     ext = "der" if sys.implementation.name == "micropython" else "pem"
     sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
-    sserver = asyncio.create_task(app.start_server(debug=True, port=443, ssl=sslctx))
+    if sys.platform != 'linux':
+        sserver = asyncio.create_task(app.start_server(debug=True, port=8443, ssl=sslctx))
+    else:
+        sserver = asyncio.create_task(app.start_server(debug=True, port=4443, ssl=sslctx))
     await sserver
 
 
