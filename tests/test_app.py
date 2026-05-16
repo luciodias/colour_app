@@ -1,5 +1,4 @@
 import os
-import pytest
 
 async def test_index(client):
     res = await client.get("/")
@@ -30,9 +29,12 @@ async def test_static_nok(client):
     assert res.status_code == 404
 
 async def test_static_missing(client):
-    #with pytest.raises(OSError):
     res = await client.get("/static/missing")
     assert res.status_code == 500
+
+async def test_measure(client):
+    res = await client.get("/measure")
+    assert res.status_code == 503
 
 async def test_dashboard(client):
     res = await client.get("/dashboard")

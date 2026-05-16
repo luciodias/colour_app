@@ -158,9 +158,10 @@ async def main():
     #await server
     ext = "der" if sys.implementation.name == "micropython" else "pem"
     sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    print(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
     sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
-    if sys.platform != 'linux':
-        sserver = asyncio.create_task(app.start_server(debug=True, port=8443, ssl=sslctx))
+    if sys.implementation.name == 'micropython':
+        sserver = asyncio.create_task(app.start_server(debug=True, port=443, ssl=sslctx))
     else:
         sserver = asyncio.create_task(app.start_server(debug=True, port=4443, ssl=sslctx))
     await sserver
