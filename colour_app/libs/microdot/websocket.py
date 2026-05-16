@@ -1,8 +1,8 @@
 import binascii
 import hashlib
-from microdot import Request, Response
-from microdot.microdot import MUTED_SOCKET_ERRORS, print_exception
-from microdot.helpers import wraps
+from libs.microdot import Request, Response
+from libs.microdot.microdot import MUTED_SOCKET_ERRORS, print_exception
+from libs.microdot.helpers import wraps
 
 
 class WebSocketError(Exception):
