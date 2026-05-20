@@ -69,7 +69,7 @@ sensor_data: dict[str, Any] = {"temperature": 10, "humidity": 20, "alerts": 0}
 @app.route("/")
 async def index(request) -> str:
     # return Template('index.html').generate(name='Name 2')
-    return send_file(f"{cwd}templates/pwa.html")
+    return send_file(f"{cwd}static/pwa.html")
 
 
 @app.route("/favicon.ico")
