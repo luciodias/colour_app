@@ -1,6 +1,5 @@
 import os
 
-
 async def test_index(client):
     res = await client.get("/")
     assert res.status_code == 200
@@ -29,6 +28,13 @@ async def test_static_nok(client):
     res = await client.get("/static/..")
     assert res.status_code == 404
 
+async def test_static_missing(client):
+    res = await client.get("/static/missing")
+    assert res.status_code == 500
+
+async def test_measure(client):
+    res = await client.get("/measure")
+    assert res.status_code == 503
 
 async def test_dashboard(client):
     res = await client.get("/dashboard")

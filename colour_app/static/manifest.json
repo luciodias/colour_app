@@ -1,7 +1,7 @@
 {
   "name": "Modern Tech PWA",
   "short_name": "TechApp",
-  "start_url": "/index.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6200ee",

@@ -7,6 +7,7 @@ import sys
 
 from libs.microdot import Microdot, Response, send_file
 from libs.microdot.utemplate import Template
+from libs.microdot.websocket import with_websocket
 from libs.tools.typing import Any
 
 color_sensor = None
@@ -73,24 +74,36 @@ async def favicon(request) -> str:
 # Static route
 @app.route("/static/<path:path>")
 def static(request, path):
-    if ".." in path:
-        # directory traversal is not allowed
-        return "Not found", 404
-    return send_file(f"{cwd}static/" + path, max_age=86400)
-
+    try:
+        if ".." in path:
+            # directory traversal is not allowed
+            return "Not found", 404
+        return send_file(f"{cwd}static/" + path, max_age=86400)
+    except (OSError, FileNotFoundError):
+        print(path)
+        raise(OSError)
 
 @app.route("/measure")
 async def measure(request) -> str:
-    async def get_measure():
-        yield color_sensor.get_measurements()
-
     if color_sensor:
+        m = await color_sensor.get_measurements()
+        print(m)
         return (
-            color_sensor.get_measurements(),
+            m,
             200,
             {"Content-Type": "application/json"},
         )
     return 503
+
+@app.route('/ws')
+@with_websocket
+async def ws(request, ws):
+    try:
+        while True:
+            message = await ws.receive()
+            await ws.send(message)
+    except asyncio.CancelledError:
+        print('Client disconnected!')
 
 
 @app.route("/dashboard")
@@ -141,12 +154,16 @@ async def reset_config(request) -> dict[str, Any]:
 #     response.headers["Access-Control-Allow-Origin"] = "*"
 #     return response
 async def main():
-    server = asyncio.create_task(app.start_server(debug=True, port=80))
-    await server
+    # server = asyncio.create_task(app.start_server(debug=True, port=80))
+    #await server
     ext = "der" if sys.implementation.name == "micropython" else "pem"
     sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    print(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
     sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
-    sserver = asyncio.create_task(app.start_server(debug=True, port=443, ssl=sslctx))
+    if sys.implementation.name == 'micropython':
+        sserver = asyncio.create_task(app.start_server(debug=True, port=443, ssl=sslctx))
+    else:
+        sserver = asyncio.create_task(app.start_server(debug=True, port=4443, ssl=sslctx))
     await sserver
 
 
