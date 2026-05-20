@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conexão WebSocket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #status {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+        }
+        .connected {
+            background-color: #d4edc9;
+            border-color: #c3e6cb;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            border-color: #c3e6cb;
+        }
+        #responseArea {
+            border: 1px solid #ccc;
+            padding: 10px;
+            min-height: 150px;
+            background-color: #f9f9f9;
+            white-space: pre-wrap; /* Mantém formatação de novas linhas e espaços */
+            white-space: pre; /* Opcional: para forçar o pre-wrap se o conteúdo for muito estruturado */
+        }
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste de Conexão WebSocket</h1>
+    <div id="status">Status: Desconectado</div>
+
+    <button id="connectButton">Conectar</button>
+    <button id="sendButton" disabled>Enviar Mensagem</button>
+
+    <h2>Respostas do Servidor:</h2>
+    <div id="responseArea"></div>
+
+    <script>
+        // 1. Elementos do DOM
+        const statusDiv = document.getElementById('status');
+        const connectButton = document.getElementById('connectButton');
+        const sendButton = document.getElementById('sendButton');
+        const responseArea = document.getElementById('responseArea');
+
+        let socket = null; // Variável para armazenar a instância do WebSocket
+
+        // 2. Função de Atualização de Status
+        function updateStatus(message, isConnected) {
+            statusDiv.textContent = `Status: ${message}`;
+            statusDiv.className = isConnected ? 'connected' : 'disconnected';
+        }
+
+        // 3. Event Listener para Conectar
+        connectButton.addEventListener('click', () => {
+            // Em um ambiente real, você usaria o endereço do seu servidor WebSocket
+            // Exemplo: const wsUrl = 'ws://localhost:8080';
+            const wsUrl = '/ws'; // Mantenha este endereço ou ajuste-o
+
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                console.log("Já conectado.");
+                return;
+            }
+
+            try {
+                socket = new WebSocket(wsUrl);
+                updateStatus('Aguardando conexão...', false);
+
+                // --- Event Handlers do WebSocket ---
+
+                // Evento quando a conexão é estabelecida
+                socket.onopen = (event) => {
+                    console.log("WebSocket aberto com sucesso.");
+                    updateStatus('Conectado!', true);
+                    sendButton.disabled = false;
+                    console.log('Recebeu o evento onopen.');
+                };
+
+                // Evento quando recebe uma mensagem
+                socket.onmessage = (event) => {
+                    console.log("Mensagem recebida:", JSON.parse(event.data));
+                    // Exibe a resposta recebida na área de resposta
+                    responseArea.textContent += '\n[RECEBIDO]: ' + event.data;
+                    // Rola para o final da área de resposta
+                    responseArea.scrollTop = responseArea.scrollHeight;
+                };
+
+                // Evento quando a conexão é fechada
+                socket.onclose = (event) => {
+                    console.log("WebSocket fechado. Código:", event.code);
+                    updateStatus('Desconectado', false);
+                    sendButton.disabled = true;
+                    socket = null; // Limpa a referência
+                };
+
+                // Evento de erro
+                socket.onerror = (event) => {
+                    console.error("Erro WebSocket:", event);
+                    updateStatus('Erro de Conexão', false);
+                };
+
+            } catch (error) {
+                console.error("Erro ao tentar criar WebSocket:", error);
+                updateStatus('Erro de Script', false);
+            }
+        });
+
+        // 4. Event Listener para Enviar Mensagem
+        sendButton.addEventListener('click', () => {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                const dict = {"cmd":"set","param":[1,2,3],"teste":"teste"};
+                const sdict = JSON.stringify(dict);
+                console.log("Enviando mensagem:", dict);
+                socket.send(sdict);
+
+                // Atualiza a área de resposta para mostrar o que foi enviado
+                responseArea.textContent += '\n[ENVIADO]: ' + sdict;
+                responseArea.scrollTop = responseArea.scrollHeight;
+            } else {
+                console.warn("Não é possível enviar mensagem: O socket não está aberto.");
+            }
+        });
+    </script>
+</body>
+</html>
