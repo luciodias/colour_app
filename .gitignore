@@ -1,13 +1,18 @@
+<<<<<<< HEAD
 env.py
 *.der
 *.pem
+=======
+# Project
+env.py
+>>>>>>> 1343254056c12e8d8725cb7493d4b9f5ba81111a
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
 *$py.class
 *.mpy
-
+certs/
 # C extensions
 *.so
 
