@@ -1,4 +1,12 @@
+import asyncio
 import os
+import ssl
+import sys
+from unittest.mock import AsyncMock, MagicMock, patch
+
+from colour_app import app
+from colour_app.app import main
+
 
 async def test_index(client):
     res = await client.get("/")
@@ -73,3 +81,60 @@ async def test_reset_config(client):
     res = await client.post("/reset-config")
     assert res.status_code == 200
     assert res.json["status"] == "resetado"
+
+
+async def test_measure_with_mock_sensor(client):
+    mock_sensor = AsyncMock()
+    mock_sensor.get_measurements.return_value = {
+        "f1": 100, "f2": 200, "f3": 300, "f4": 400,
+        "f5": 500, "f6": 600, "f7": 700, "f8": 800,
+        "clr": 900, "nir": 1000, "fd": 1,
+    }
+    with patch.object(app, "color_sensor", mock_sensor):
+        res = await client.get("/measure")
+    assert res.status_code == 200
+    assert res.json["f1"] == 100
+    assert res.json["fd"] == 1
+
+
+async def test_main_server_start_micropython():
+    sslctx_mock = MagicMock()
+    sslctx_mock.load_cert_chain = MagicMock()
+    done = asyncio.Event()
+    done.set()
+
+    with (
+        patch("colour_app.app.sys") as mock_sys,
+        patch("colour_app.app.ssl.SSLContext", return_value=sslctx_mock) as mock_ssl,
+        patch("colour_app.app.asyncio.create_task", return_value=done.wait()) as mock_create_task,
+    ):
+        mock_sys.implementation.name = "micropython"
+        await main()
+
+    mock_ssl.assert_called_once_with(ssl.PROTOCOL_TLS_SERVER)
+    sslctx_mock.load_cert_chain.assert_called_once()
+    mock_create_task.assert_called_once()
+
+
+async def test_main_server_start_cpython():
+    sslctx_mock = MagicMock()
+    sslctx_mock.load_cert_chain = MagicMock()
+    done = asyncio.Event()
+    done.set()
+
+    with (
+        patch("colour_app.app.sys") as mock_sys,
+        patch("colour_app.app.ssl.SSLContext", return_value=sslctx_mock) as mock_ssl,
+        patch("colour_app.app.asyncio.create_task", return_value=done.wait()) as mock_create_task,
+    ):
+        mock_sys.implementation.name = "cpython"
+        await main()
+
+    mock_ssl.assert_called_once_with(ssl.PROTOCOL_TLS_SERVER)
+    sslctx_mock.load_cert_chain.assert_called_once()
+    mock_create_task.assert_called_once()
+
+
+async def test_websocket_upgrade_required(client):
+    res = await client.get("/ws")
+    assert res.status_code == 400
