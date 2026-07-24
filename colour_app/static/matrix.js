@@ -1,7 +1,6 @@
 function multiply(matrizA, colunasA, matrizB, colunasB) {
     const linhasA = Math.floor(matrizA.length / colunasA);
     const linhasB = Math.floor(matrizB.length / colunasB);
-
     // Verifica se a multiplicação é possível
     if (colunasA !== linhasB) {
         throw new Error("Número de colunas de A deve ser igual ao número de linhas de B");
@@ -18,6 +17,5 @@ function multiply(matrizA, colunasA, matrizB, colunasB) {
             }
         }
     }
-
     return resultado;
 }
