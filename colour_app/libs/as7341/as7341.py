@@ -30,11 +30,13 @@ THE SOFTWARE.
 """
 
 from struct import unpack_from
+
 from libs.tools.typing import Any
 
 try:
     from time import sleep_ms
-    from micropython import const # pyright: ignore[reportMissingImports]
+
+    from micropython import const  # pyright: ignore[reportMissingImports]
 except ImportError:
     def const(c):
         return c
