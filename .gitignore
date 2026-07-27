@@ -1,5 +1,6 @@
 # Project
 env.py
+graphify-out/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
