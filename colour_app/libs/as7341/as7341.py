@@ -308,7 +308,7 @@ class AS7341:
             )
             return False
         else:
-            if not (id & (~0x03)) == _ID_VALUE:  # ID in bits 7..2 bits
+            if (id & (~0x03)) != _ID_VALUE:  # ID in bits 7..2 bits
                 print(
                     "No AS7341: found 0x{:02X}, expected 0x{:02X}".format(id, _ID_VALUE)
                 )
