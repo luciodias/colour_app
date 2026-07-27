@@ -42,6 +42,7 @@ esp = [
 # PYTEST
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+norecursedirs = "colour_app/libs"
 
 # COVERAGE
 [tool.coverage.run]
@@ -49,7 +50,8 @@ parallel = true
 omit = [
     "tests/*",
     "colour_app/libs/*",
-    "tools/*"
+    "tools/*",
+    "env.py"
     ]
 [tool.coverage.report]
 precision = 0

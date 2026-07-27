@@ -1,82 +1,96 @@
 # Colour Monitoring Application
 
-This project implements a simple IoT data monitoring dashboard using Python with the `microdot` framework. It simulates real-time sensor data (temperature and humidity) and provides a web interface to visualize these metrics, along with an administration page to manage monitoring thresholds.
+Aplicação IoT para monitoramento espectral de cores usando sensor **AS7341** em **ESP32 com MicroPython**. Utiliza o framework **Microdot** para servir dashboards web, PWA e API REST com HTTPS.
 
-## 🚀 Features
+## Funcionalidades
 
-*   **Real-time Dashboard:** Visualizes simulated sensor readings on line charts (Temperature, Humidity, Alerts).
-*   **Data Simulation:** A background thread simulates the arrival of new IoT data points at configured intervals.
-*   **Configuration Management:** Allows users to view and update monitoring thresholds (e.g., temperature/humidity limits) via a dedicated `/config` page.
-*   **Simple API Endpoints:** Provides RESTful endpoints (`/data`, `/config-data`) for data polling by front-end clients.
+- **Sensor AS7341**: Medição espectral em 11 canais (F1-F8, clear, NIR, flicker detection) via I2C
+- **Servidor HTTPS**: Microdot com TLS nas portas 443 (ESP32) ou 4443 (CPython)
+- **PWA**: Interface web progressiva com service worker e manifesto
+- **WiFi Inteligente**: Scan de redes, conexão automática à de melhor sinal, notificação via ntfy.sh
+- **WebSocket**: Endpoint `/ws` para comunicação em tempo real
+- **Configuração**: Página `/config` para ajuste de parâmetros
+- **Dual-platform**: Compatível com MicroPython (ESP32) e CPython (desenvolvimento/testes)
 
-## ⚙️ Project Structure
+## Estrutura
 
 ```
 .
 ├── colour_app/
-│   ├── app.py              # Core Flask/Microdot application logic
-│   └── templates/
-│       ├── config.html     # Configuration page template
-│       └── dashboard.html  # Main visualization dashboard
-├── pyproject.toml          # Project dependencies and metadata
-└── README.md               # This file
+│   ├── app.py              # Servidor web Microdot (rotas, TLS, CORS)
+│   ├── sensor.py           # Driver do sensor AS7341 (medições assíncronas)
+│   ├── boot.py             # Boot do ESP32 (WiFi, AP, notificação)
+│   ├── env.py              # Credenciais WiFi e API de notificação
+│   ├── libs/
+│   │   ├── as7341/         # Biblioteca do sensor AS7341
+│   │   ├── microdot/       # Micro web framework
+│   │   ├── utemplate/      # Template engine
+│   │   └── tools/          # Utilitários (typing)
+│   ├── templates/          # HTML templates (dashboard, config, pwa)
+│   ├── static/             # Assets (CSS, JS, service worker, ícones)
+│   └── certs/              # Certificados TLS (cert.pem, key.pem)
+├── tests/                  # Testes com pytest
+├── tools/
+│   └── build.py            # Compila .py para .mpy (bytecode MicroPython)
+├── config.json             # Configurações persistentes
+└── pyproject.toml          # Dependências e tooling
 ```
 
-## 🛠️ Setup and Installation
+## Setup e Instalação
 
-### Prerequisites
+### Dependências
 
-Ensure you have Python 3.13+ installed.
+```bash
+poetry install
+```
 
-### Installation
-
-1.  **Create a Virtual Environment (Recommended):**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Linux/macOS
-    # .\\venv\\Scripts\\activate  # On Windows
-    ```
-
-2.  **Install Dependencies:**
-    The dependencies are managed via `pyproject.toml`. You can install them using Poetry (if Poetry is set up for this project):
-    ```bash
-    poetry install
-    ```
-    *(Note: If `poetry install` fails due to package conflicts, you might need to manually install the primary dependency: `pip install microdot`)*
-
-## ▶️ Usage Examples
-
-### 1. Running the Application
-
-The application can be started using the following command (assuming Poetry is used):
+### Desenvolvimento (CPython)
 
 ```bash
 poetry run python colour_app/app.py
 ```
 
-The application will start running on `http://127.0.0.1:5000/` and will use the `config.json` file in the root directory for persistent settings.
+Servidor HTTPS inicia em `https://127.0.0.1:4443/`.
 
-### 2. Accessing Endpoints
+### ESP32 (MicroPython)
 
-Once the application is running, you can interact with the following endpoints:
+1. Compilar para bytecode:
+   ```bash
+   poetry run task build
+   ```
+2. Enviar conteúdo da pasta `build/` para o ESP32 via mpremote ou WebREPL.
 
-*   **Dashboard:** Access the main visualization page:
-    [http://127.0.0.1:5000/dashboard](http://127.0.0.1:5000/dashboard)
+## Endpoints
 
-*   **Configuration:** View and update settings:
-    [http://127.0.0.1:5000/config](http://127.0.0.1:5000/config)
-    *(When submitting a form on this page, the thresholds will be updated in `config.json`)*
+| Rota | Método | Descrição |
+|---|---|---|
+| `/` | GET | PWA principal |
+| `/dashboard` | GET | Dashboard de monitoramento |
+| `/config` | GET/POST | Página e API de configuração |
+| `/config-data` | GET | Retorna configurações atuais (JSON) |
+| `/measure` | GET | Medições do sensor AS7341 (JSON) |
+| `/ws` | WebSocket | Comunicação bidirecional em tempo real |
+| `/reset-config` | POST | Restaura configuração padrão |
+| `/static/*` | GET | Arquivos estáticos |
 
-*   **Data Polling (Client Side):** The dashboard automatically polls data from this endpoint every 3 seconds:
-    *   **GET:** `/data` (Returns `{"temperature": X, "humidity": Y, "alerts": Z}`)
+## Testes
 
-*   **Configuration Retrieval:** Fetch current saved settings:
-    *   **GET:** `/config-data`
+```bash
+poetry run task test
+```
 
-### 💡 Note on Simulation
+## Build (MicroPython)
 
-The `simulate_data()` function runs in a background thread, constantly updating the `sensor_data` global variable, which drives the front-end charts via polling.
+```bash
+poetry run task build
+```
 
----
+Compila todos os `.py` para `.mpy` usando `mpy-cross`, ignorando arquivos já atualizados.
 
-**Important:** The application relies on `config.json` existing or being created upon first run to store settings.
+## Tooling
+
+- **Poetry** — dependências e ambiente
+- **pytest** + **pytest-cov** — testes com cobertura
+- **ruff** — lint e formatação
+- **taskipy** — automação de tarefas
+- **esptool / mpremote / mpy-cross** — toolchain ESP32
