@@ -70,3 +70,8 @@ test = 'pytest -s -x --cov=colour_app -vv'
 post_test = 'coverage html'
 build = 'poetry run python tools/build.py'
 
+[tool.ruff.lint]
+ignore = [
+    "UP032",    # Checks for str.format calls that can be replaced with f-strings.
+    "BLE001",   # Checks for except clauses that catch all exceptions.
+    ]
