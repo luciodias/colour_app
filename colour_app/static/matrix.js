@@ -19,3 +19,5 @@ function multiply(matrizA, colunasA, matrizB, colunasB) {
     }
     return resultado;
 }
+
+export { multiply };
