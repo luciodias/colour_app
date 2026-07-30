@@ -13,49 +13,26 @@ except ImportError:
     def const(c):
         return c
 
-_CFG_0 = const(0xA9)
-_CFG_0_LOW_POWER = const(0x20)
-_CFG_6 = const(0xAF)
-_CFG_6_SMUX_CMD_WRITE = const(0x10)
-_CONFIG_INT_MODE_SPM = const(0x00)
-_CONFIG_INT_MODE_SYNS = const(0x01)
-
 class Sensor(AS7341):
     """Classe SENSOR que herda de AS7341 com método para retornar medições formatadas"""
 
-
-    def __init__(self):
+    def __init__(self, i2c=None):
         """Inicializa o sensor com configurações padrão"""
-        super().__init__(I2C(1, scl=Pin(4), sda=Pin(5), freq=100000))
+        if i2c is None:
+            i2c = I2C(1, scl=Pin(4), sda=Pin(5), freq=100000)
+        super().__init__(i2c)
         self.address = " ".join(["0x{:02X}".format(x) for x in self._bus.scan()])
-        super().set_measure_mode(AS7341_MODE_SPM)
-        super().set_atime(29)  # 30 ASTEPS
-        super().set_astep(599)  # 1.67 ms
-        super().set_again(4)  # factor 8 (with pretty much light)
+
+    async def init(self):
+        await super().init()
+        await self.set_measure_mode(AS7341_MODE_SPM)
+        await self.set_atime(29)
+        await self.set_astep(599)
+        await self.set_again(4)
+        return self
 
     async def start_measure(self, selection: str|None = None) -> None:
-        """select SMUX configuration,
-        Optionally select of change channel selection
-        prepare and start measurement
-        Note: Typically <selection> need not be specified
-              when a series of measurements with the same
-              channel selection is being performed.
-              (then use channel_selection() once)
-        """
-        self._modify_reg(_CFG_0, _CFG_0_LOW_POWER, False)  # no low power
-        self.set_spectral_measurement(False)  # quiesce
-        self._write_byte(_CFG_6, _CFG_6_SMUX_CMD_WRITE)  # write mode
-        if selection is not None:
-            self.channel_select(selection)
-        if self._measuremode == _CONFIG_INT_MODE_SPM:
-            self.set_smux(True)
-        elif self._measuremode == _CONFIG_INT_MODE_SYNS:
-            self.set_smux(True)
-            self.set_gpio_input(True)
-        self.set_spectral_measurement(True)
-        if self._measuremode == _CONFIG_INT_MODE_SPM:
-            while not self.measurement_completed():
-                await asyncio.sleep_ms(15)
+        await super().start_measure(selection)
 
     async def get_measurements(self):
         if not self.isconnected():

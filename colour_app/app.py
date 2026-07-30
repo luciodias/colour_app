@@ -149,11 +149,13 @@ async def reset_config(request) -> dict[str, Any]:
 # =========================
 # CORS (básico)
 # =========================
-# @app.after_request
-# async def after_request(request, response) -> Any:
-#     response.headers["Access-Control-Allow-Origin"] = "*"
-#     return response
+    # @app.after_request
+    # async def after_request(request, response) -> Any:
+    #     response.headers["Access-Control-Allow-Origin"] = "*"
+    #     return response
 async def main():
+    if color_sensor:
+        await color_sensor.init()
     # server = asyncio.create_task(app.start_server(debug=True, port=80))
     #await server
     ext = "der" if sys.implementation.name == "micropython" else "pem"

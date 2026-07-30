@@ -29,17 +29,24 @@ THE SOFTWARE.
 
 """
 
+import asyncio
+import sys
+
 from struct import unpack_from
 
 from libs.tools.typing import Any
 
 try:
-    from time import sleep_ms
-
     from micropython import const  # pyright: ignore[reportMissingImports]
 except ImportError:
     def const(c):
         return c
+
+if sys.implementation.name == "micropython":
+    _async_sleep_ms = asyncio.sleep_ms
+else:
+    async def _async_sleep_ms(ms: int) -> None:
+        await asyncio.sleep(ms / 1000)
 
 
 AS7341_SMUX_SELECT = {
@@ -180,7 +187,12 @@ class AS7341:
         self._buffer2 = bytearray(2)  # I2C I/O buffer for word
         self._buffer13 = bytearray(13)  # I2C I/O buffer ASTATUS + 6 counts
         self._measuremode = AS7341_MODE_SPM  # default measurement mode
-        self._connected = self.reset()  # recycle power, check AS7341 presence
+        self._connected = False  # call await init() to connect
+
+    async def init(self):
+        """async initialisation: power cycle and check AS7341 presence"""
+        self._connected = await self.reset()
+        return self
 
     """ --------- 'private' methods ----------- """
 
@@ -220,18 +232,18 @@ class AS7341:
             print("I2C read_all_channels at 0x{:02X}, error".format(_ASTATUS), err)
             return ()  # empty list
 
-    def _write_byte(self, reg: int, value: int) -> bool:
+    async def _write_byte(self, reg: int, value: int) -> bool:
         """write a single byte to the specified register"""
         self._buffer1[0] = value & 0xFF
         try:
             self._bus.writeto_mem(self._address, reg, self._buffer1)
-            sleep_ms(10)
+            await _async_sleep_ms(10)
         except Exception as err:
             print("I2C write_byte at 0x{:02X}, error".format(reg), err)
             return False
         return True
 
-    def _write_word(self, reg: int, value: int) -> bool:
+    async def _write_word(self, reg: int, value: int) -> bool:
         """write a word as 2 bytes (little endian encoding)
         to adresses <reg> + 0 and <reg> + 1
         """
@@ -239,23 +251,23 @@ class AS7341:
         self._buffer2[1] = (value >> 8) & 0xFF  # high byte
         try:
             self._bus.writeto_mem(self._address, reg, self._buffer2)
-            sleep_ms(20)
+            await _async_sleep_ms(20)
         except Exception as err:
             print("I2C write_word at 0x{:02X}, error".format(reg), err)
             return False
         return True
 
-    def _write_burst(self, reg: int, value: bytes) -> bool:
+    async def _write_burst(self, reg: int, value: bytes) -> bool:
         """write an array of bytes to consecutive addresses starting at <reg>"""
         try:
             self._bus.writeto_mem(self._address, reg, value)
-            sleep_ms(100)
+            await _async_sleep_ms(100)
         except Exception as err:
             print("I2C write_burst at 0x{:02X}, error".format(reg), err)
             return False
         return True
 
-    def _modify_reg(self, reg: int, mask: int, flag: bool = True) -> None:
+    async def _modify_reg(self, reg: int, mask: int, flag: bool = True) -> None:
         """modify register <reg> with <mask>
         <flag> True  means 'or' with <mask> : set the bit(s)
         <flag> False means 'and' with inverted <mask> : reset the bit(s)
@@ -269,9 +281,9 @@ class AS7341:
             data |= mask  # set bit(s)
         else:
             data &= ~mask  # reset bit(s)
-        self._write_byte(reg, data)  # rewrite <reg>
+        await self._write_byte(reg, data)  # rewrite <reg>
 
-    def _set_bank(self, bank: int = 1) -> None:
+    async def _set_bank(self, bank: int = 1) -> None:
         """select registerbank
         <bank> 0 for access to regs 0x80-0xFF
         <bank> 1 for access to regs 0x60-0x74
@@ -280,29 +292,29 @@ class AS7341:
               it wouldn't be possible to reset the REG_BANK bit.
               Datasheet isn't clear about this.
         """
-        self._modify_reg(_CFG_0, _CFG_0_REG_BANK, bank != 0)
+        await self._modify_reg(_CFG_0, _CFG_0_REG_BANK, bank != 0)
 
     """ ----------- 'public' methods ----------- """
 
-    def enable(self) -> None:
+    async def enable(self) -> None:
         """enable device (only power on)"""
-        self._write_byte(_ENABLE, _ENABLE_PON)
+        await self._write_byte(_ENABLE, _ENABLE_PON)
 
-    def disable(self) -> None:
+    async def disable(self) -> None:
         """disable all functions and power off"""
-        self._set_bank(1)  # CONFIG register is in bank 1
-        self._write_byte(_CONFIG, 0x00)  # INT, LED off, SPM mode
-        self._set_bank(0)
-        self._write_byte(_ENABLE, 0x00)  # power off
+        await self._set_bank(1)  # CONFIG register is in bank 1
+        await self._write_byte(_CONFIG, 0x00)  # INT, LED off, SPM mode
+        await self._set_bank(0)
+        await self._write_byte(_ENABLE, 0x00)  # power off
 
-    def reset(self) -> bool:
+    async def reset(self) -> bool:
         """Cycle power and check if AS7341 is (re-)connected
         When connected set (restore) measurement mode
         """
-        self.disable()  # power-off ('reset')
-        sleep_ms(50)  # quiesce
-        self.enable()  # (only) power-on
-        sleep_ms(50)  # settle
+        await self.disable()  # power-off ('reset')
+        await _async_sleep_ms(50)  # quiesce
+        await self.enable()  # (only) power-on
+        await _async_sleep_ms(50)  # settle
         id = self._read_byte(_ID)  # obtain Part Number ID
         if id < 0:  # read error
             print(
@@ -315,7 +327,7 @@ class AS7341:
                     "No AS7341: found 0x{:02X}, expected 0x{:02X}".format(id, _ID_VALUE)
                 )
                 return False
-        self.set_measure_mode(self._measuremode)  # configure chip
+        await self.set_measure_mode(self._measuremode)  # configure chip
         return True
 
     def isconnected(self) -> bool:
@@ -326,15 +338,15 @@ class AS7341:
         """check if measurement completed (return True), otherwise return False"""
         return bool(self._read_byte(_STATUS_2) & _STATUS_2_AVALID)
 
-    def set_spectral_measurement(self, flag: bool = True) -> None:
+    async def set_spectral_measurement(self, flag: bool = True) -> None:
         """enable (flag == True) spectral measurement, otherwise disable it"""
-        self._modify_reg(_ENABLE, _ENABLE_SP_EN, flag)
+        await self._modify_reg(_ENABLE, _ENABLE_SP_EN, flag)
 
-    def set_smux(self, flag: bool = True) -> None:
+    async def set_smux(self, flag: bool = True) -> None:
         """enable (flag == True) SMUX, otherwise disable it"""
-        self._modify_reg(_ENABLE, _ENABLE_SMUXEN, flag)
+        await self._modify_reg(_ENABLE, _ENABLE_SMUXEN, flag)
 
-    def set_measure_mode(self, mode: int = _CONFIG_INT_MODE_SPM) -> None:
+    async def set_measure_mode(self, mode: int = _CONFIG_INT_MODE_SPM) -> None:
         """configure the AS7341 for a specific measurement mode
         when interrupt needed it must be configured separately
         """
@@ -344,23 +356,23 @@ class AS7341:
             _CONFIG_INT_MODE_SYND,
         ):  # meas. started by GPIO + EDGE
             self._measuremode = mode  # store new measurement mode
-            self._set_bank(1)  # CONFIG register is in bank 1
+            await self._set_bank(1)  # CONFIG register is in bank 1
             data = self._read_byte(_CONFIG) & (~0x03)  # reset 2 LSbs (mode)
             data |= mode  # insert new mode
-            self._write_byte(_CONFIG, data)  # modify measurement mode
-            self._set_bank(0)  # leave bank 1
+            await self._write_byte(_CONFIG, data)  # modify measurement mode
+            await self._set_bank(0)  # leave bank 1
 
-    def channel_select(self, selection: str) -> None:
+    async def channel_select(self, selection: str) -> None:
         """select one from a series of predefined SMUX configurations
         <selection> should be a key in dictionary AS7341_SMUX_SELECT
         20 bytes of memory starting from address 0 will be overwritten.
         """
         if selection in AS7341_SMUX_SELECT:
-            self._write_burst(0x00, AS7341_SMUX_SELECT[selection])
+            await self._write_burst(0x00, AS7341_SMUX_SELECT[selection])
         else:
             print(selection, "is unknown in AS7341_SMUX_SELECT")
 
-    def start_measure(self, selection: str|None = None) -> None:
+    async def start_measure(self, selection: str|None = None) -> None:
         """select SMUX configuration,
         Optionally select of change channel selection
         prepare and start measurement
@@ -369,20 +381,20 @@ class AS7341:
               channel selection is being performed.
               (then use channel_selection() once)
         """
-        self._modify_reg(_CFG_0, _CFG_0_LOW_POWER, False)  # no low power
-        self.set_spectral_measurement(False)  # quiesce
-        self._write_byte(_CFG_6, _CFG_6_SMUX_CMD_WRITE)  # write mode
+        await self._modify_reg(_CFG_0, _CFG_0_LOW_POWER, False)  # no low power
+        await self.set_spectral_measurement(False)  # quiesce
+        await self._write_byte(_CFG_6, _CFG_6_SMUX_CMD_WRITE)  # write mode
         if selection is not None:
-            self.channel_select(selection)
+            await self.channel_select(selection)
         if self._measuremode == _CONFIG_INT_MODE_SPM:
-            self.set_smux(True)
+            await self.set_smux(True)
         elif self._measuremode == _CONFIG_INT_MODE_SYNS:
-            self.set_smux(True)
-            self.set_gpio_input(True)
-        self.set_spectral_measurement(True)
+            await self.set_smux(True)
+            await self.set_gpio_input(True)
+        await self.set_spectral_measurement(True)
         if self._measuremode == _CONFIG_INT_MODE_SPM:
             while not self.measurement_completed():
-                sleep_ms(50)
+                await _async_sleep_ms(50)
 
     def get_channel_data(self, channel: int = 0):
         """read count of a single channel (channel in range 0..5)
@@ -414,28 +426,28 @@ class AS7341:
         """
         return self._read_all_channels()  # return a tuple!
 
-    def set_flicker_detection(self, flag: bool = True) -> None:
+    async def set_flicker_detection(self, flag: bool = True) -> None:
         """enable (flag == True) flicker detection or otherwise disable it"""
-        self._modify_reg(_ENABLE, _ENABLE_FDEN, flag)
+        await self._modify_reg(_ENABLE, _ENABLE_FDEN, flag)
 
-    def get_flicker_frequency(self) -> int:
+    async def get_flicker_frequency(self) -> int:
         """Determine flicker frequency in Hz. Returns 100, 120 or 0
         Integration time and gain for flicker detection is the same as for
         other channels, the dedicated FD_TIME and FD_GAIN are not supported
         """
-        self._modify_reg(_CFG_0, _CFG_0_LOW_POWER, False)  # no low power
-        self.set_spectral_measurement(False)
-        self._write_byte(_CFG_6, _CFG_6_SMUX_CMD_WRITE)
-        self.channel_select("FD")  # select flicker detection only
-        self.set_smux(True)
-        self.set_spectral_measurement(True)
-        self.set_flicker_detection(True)
+        await self._modify_reg(_CFG_0, _CFG_0_LOW_POWER, False)  # no low power
+        await self.set_spectral_measurement(False)
+        await self._write_byte(_CFG_6, _CFG_6_SMUX_CMD_WRITE)
+        await self.channel_select("FD")  # select flicker detection only
+        await self.set_smux(True)
+        await self.set_spectral_measurement(True)
+        await self.set_flicker_detection(True)
         for _ in range(10):  # limited wait for completion
             fd_status = self._read_byte(_FD_STATUS)
             if fd_status & _FD_STATUS_FD_MEAS_VALID:
                 break
             # print("Flicker measurement not completed")
-            sleep_ms(50)
+            await _async_sleep_ms(50)
         else:  # timeout
             print("Flicker measurement timed out")
             return 0
@@ -446,13 +458,13 @@ class AS7341:
             ):
                 break
             # print("Flicker calculation not completed")
-            sleep_ms(50)
+            await _async_sleep_ms(50)
         else:  # timeout
             print("Flicker frequency calculation timed out")
             return 0
         # print("FD_STATUS", "0x{:02X}".format(fd_status))
-        self.set_flicker_detection(False)  # disable
-        self._write_byte(_FD_STATUS, 0x3C)  # reset clearable FD_STATUS bits
+        await self.set_flicker_detection(False)  # disable
+        await self._write_byte(_FD_STATUS, 0x3C)  # reset clearable FD_STATUS bits
         if (fd_status & _FD_STATUS_FD_100_VALID) and (fd_status & _FD_STATUS_FD_100HZ):
             return 100
         elif (fd_status & _FD_STATUS_FD_120_VALID) and (
@@ -461,7 +473,7 @@ class AS7341:
             return 120
         return 0
 
-    def set_gpio_input(self, enable=True) -> None:
+    async def set_gpio_input(self, enable=True) -> None:
         """Configure GPIO for input and select
         input-sensitivity mode of operation:
         <enable> True: enable input sensitivity, False: disable
@@ -470,7 +482,7 @@ class AS7341:
         mask = _GPIO_2_GPIO_OUT  # activate GPIO pin
         if enable:
             mask |= _GPIO_2_GPIO_IN_EN  # set input sensitivity
-        self._write_byte(_GPIO_2, mask)
+        await self._write_byte(_GPIO_2, mask)
         # print("GPIO_2 = 0x{:02X}".format(self._read_byte(AS7341_GPIO_2)))
 
     def get_gpio_value(self) -> bool:
@@ -481,7 +493,7 @@ class AS7341:
         # print("GPIO_2 = 0x{:02X}".format(self._read_byte(AS7341_GPIO_2)))
         return bool(self._read_byte(_GPIO_2) & _GPIO_2_GPIO_IN)
 
-    def set_gpio_output(self, inverted: bool = False) -> None:
+    async def set_gpio_output(self, inverted: bool = False) -> None:
         """Set GPIO pin for output.
         <inverted> False: normal mode, True: inverted mode
         GPIO pin is open drain: when you want to control a LED
@@ -495,40 +507,40 @@ class AS7341:
         mask = 0x00  # reset all bits -> ouptut mode
         if inverted:
             mask |= _GPIO_2_GPIO_INV
-        self._write_byte(_GPIO_2, mask)
+        await self._write_byte(_GPIO_2, mask)
         # print("GPIO_2 = 0x{:02X}".format(self._read_byte(AS7341_GPIO_2)))
 
-    def set_gpio_inverted(self, flag: bool = True) -> None:
+    async def set_gpio_inverted(self, flag: bool = True) -> None:
         """Invert GPIO pin behaviour while in output mode
         <flag> True: inverted mode, False: normal mode.
         When a LED is connected: True: LED off, False: LED on
         """
-        self._modify_reg(_GPIO_2, _GPIO_2_GPIO_INV, flag)
+        await self._modify_reg(_GPIO_2, _GPIO_2_GPIO_INV, flag)
         # print("GPIO_2 = 0x{:02X}".format(self._read_byte(AS7341_GPIO_2)))
 
-    def set_gpio_mask(self, mask: int = 0x00) -> None:
+    async def set_gpio_mask(self, mask: int = 0x00) -> None:
         """Raw GPIO control: mask is directly written to register GPIO 2
         Examples of meaningful masks:
         0x00 - GPIO in output mode: LED on
         0x08 - GPIO in output mode: LED off
         0x06 - GPIO in input mode and input-sensitivity enabled
         """
-        self._write_byte(_GPIO_2, mask)
+        await self._write_byte(_GPIO_2, mask)
         print("GPIO_2 = 0x{:02X}".format(self._read_byte(_GPIO_2)))
 
-    def set_astep(self, value: int = 599) -> None:
+    async def set_astep(self, value: int = 599) -> None:
         """set ASTEP size (range 0..65534 -> 2.78 usec .. 182 msec)"""
         if 0 <= value <= 65534:
-            self._write_word(_ASTEP, value)
+            await self._write_word(_ASTEP, value)
 
     def get_astep_time(self) -> float:
         """return actual step time (milliseconds)"""
         return (self._read_word(_ASTEP) + 1) * 2.78 / 1000
 
-    def set_atime(self, value: int = 29) -> None:
+    async def set_atime(self, value: int = 29) -> None:
         """set integration time (range 0..255) expressed in ASTEPs"""
         if 0 <= value <= 255:
-            self._write_byte(_ATIME, value)
+            await self._write_byte(_ATIME, value)
 
     def get_overflow_count(self):
         """return maximum count for this (astep, atime) combination"""
@@ -540,62 +552,64 @@ class AS7341:
         """
         return self.get_overflow_count() * 2.78 / 1000
 
-    def set_again(self, code: int) -> None:
+    async def set_again(self, code: int) -> None:
         """set AGAIN (code in range 0..10 -> gain factor 0.5 .. 512)
         code:    0  1  2  3  4   5   6   7    8    9   10
         gain:  0.5  1  2  4  8  16  32  64  128  256  512
         in other words: gain_factor = 2 ** (code - 1)
         """
         if 0 <= code <= 10:
-            self._write_byte(_CFG_1, code)
+            await self._write_byte(_CFG_1, code)
 
     def get_again(self):
         """obtain actual gain code (in range 0 .. 10)"""
         return self._read_byte(_CFG_1)
 
-    def set_again_factor(self, factor: int) -> None:
+    async def set_again_factor(self, factor: int) -> None:
         """'inverse' function of 'set_again': gain factor -> code 0 .. 10
         <factor> is rounded down to nearest power of 2 (in range 0.5 .. 512)
         """
-        for code in range(10, -1, -1):  # descending range
-            if 2 ** (code - 1) <= factor:
+        code = 0
+        for c in range(10, -1, -1):  # descending range
+            if 2 ** (c - 1) <= factor:
+                code = c
                 break
-        self._write_byte(_CFG_1, code)
+        await self._write_byte(_CFG_1, code)
 
     def get_again_factor(self) -> None:
         """obtain actual gain factor (in range 0.5 .. 512)"""
         return 2 ** (self.get_again() - 1)
 
-    def set_wen(self, flag: bool = True) -> None:
+    async def set_wen(self, flag: bool = True) -> None:
         """enable (flag=True) or otherwise disable use of WTIME (auto re-start)"""
-        self._modify_reg(_ENABLE, _ENABLE_WEN, flag)
+        await self._modify_reg(_ENABLE, _ENABLE_WEN, flag)
 
-    def set_wtime(self, code: int) -> None:
+    async def set_wtime(self, code: int) -> None:
         """set WTIME when auto-re-start is desired (in range 0 .. 255)
         wtime = 2.78 * (<code> + 1)
         0 -> 2.78, 255 -> 711.7 ms
         Note: The WEN bit in ENABLE should be set as well: set_wen()
         """
-        self._write_byte(_WTIME, code)
+        await self._write_byte(_WTIME, code)
 
-    def set_led_current(self, current: int) -> None:
+    async def set_led_current(self, current: int) -> None:
         """Control current of ONBOARD LED in milliamperes
         LED-current is (here) limited to the range 4..20 mA
         use only even numbers (4,6,8,... etc)
         Specification outside this range results in LED OFF
         """
-        self._set_bank(1)  # CONFIG and LED registers in bank 1
+        await self._set_bank(1)  # CONFIG and LED registers in bank 1
         if 4 <= current <= 20:  # within limits: 4..20 mA
-            self._modify_reg(_CONFIG, _CONFIG_LED_SEL, True)
+            await self._modify_reg(_CONFIG, _CONFIG_LED_SEL, True)
             # print("Reg. CONFIG (0x70) now 0x{:02X}".format(self._read_byte(0x70)))
             data = _LED_LED_ACT + ((current - 4) // 2)  # LED on with PWM
         else:
-            self._modify_reg(_CONFIG, _CONFIG_LED_SEL, False)
+            await self._modify_reg(_CONFIG, _CONFIG_LED_SEL, False)
             data = 0  # LED off, PWM 0
-        self._write_byte(_LED, data)
+        await self._write_byte(_LED, data)
         # print("reg 0x74 (LED) now 0x{:02X}".format(self._read_byte(0x74)))
-        self._set_bank(0)
-        sleep_ms(100)
+        await self._set_bank(0)
+        await _async_sleep_ms(100)
 
     def check_interrupt(self) -> bool:
         """Check for Spectral or Flicker Detect saturation interrupt"""
@@ -605,30 +619,30 @@ class AS7341:
             return True
         return False
 
-    def clear_interrupt(self) -> None:
+    async def clear_interrupt(self) -> None:
         """clear all interrupt signals"""
-        self._write_byte(_STATUS, 0xFF)
+        await self._write_byte(_STATUS, 0xFF)
 
-    def set_spectral_interrupt(self, flag: bool = True) -> None:
+    async def set_spectral_interrupt(self, flag: bool = True) -> None:
         """enable (flag == True) or otherwise disable spectral interrupts"""
-        self._modify_reg(_INTENAB, _INTENAB_SP_IEN, flag)
+        await self._modify_reg(_INTENAB, _INTENAB_SP_IEN, flag)
 
-    def set_interrupt_persistence(self, value: int) -> None:
+    async def set_interrupt_persistence(self, value: int) -> None:
         """configure interrupt persistance"""
         if 0 <= value <= 15:
-            self._write_byte(_PERS, value)
+            await self._write_byte(_PERS, value)
 
-    def set_spectral_threshold_channel(self, value: int) -> None:
+    async def set_spectral_threshold_channel(self, value: int) -> None:
         """select channel (0..4) for interrupts, persistence and AGC"""
         if 0 <= value <= 4:
-            self._write_byte(_CFG_12, value)
+            await self._write_byte(_CFG_12, value)
 
-    def set_thresholds(self, lo: int, hi: int) -> None:
+    async def set_thresholds(self, lo: int, hi: int) -> None:
         """Set thresholds (when lo < hi)"""
         if lo < hi:
-            self._write_word(_SP_TH_LOW, lo)
-            self._write_word(_SP_TH_HIGH, hi)
-            sleep_ms(20)
+            await self._write_word(_SP_TH_LOW, lo)
+            await self._write_word(_SP_TH_HIGH, hi)
+            await _async_sleep_ms(20)
 
     def get_thresholds(self):
         """obtain and return tuple with low and high threshold values"""
@@ -636,11 +650,11 @@ class AS7341:
         hi = self._read_word(_SP_TH_HIGH)
         return (lo, hi)
 
-    def set_syns_int(self) -> None:
+    async def set_syns_int(self) -> None:
         """select SYNS mode and signal SYNS interrupt on Pin INT
         Pin INT is open drain output: a pull-up resistor will be required
         for signalling an external device.
         """
-        self._set_bank(1)  # CONFIG register is in bank 1
-        self._write_byte(_CONFIG, _CONFIG_INT_SEL | _CONFIG_INT_MODE_SYNS)
-        self._set_bank(0)
+        await self._set_bank(1)  # CONFIG register is in bank 1
+        await self._write_byte(_CONFIG, _CONFIG_INT_SEL | _CONFIG_INT_MODE_SYNS)
+        await self._set_bank(0)
