@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   channel_name, channel_wl, counts, sensor_offset, sensor_factor,
   reconstruction_wl, xN, yN, zN, correction_matrix,
+  calcularCCTMcCamy, processarAS7341,
 } from '../../colour_app/static/js/calibration.js'
 
 describe('calibration data', () => {
@@ -52,5 +53,75 @@ describe('calibration data', () => {
     for (const v of correction_matrix) {
       expect(typeof v).toBe('number')
     }
+  })
+})
+
+describe('calcularCCTMcCamy', () => {
+  it('returns ~6500K for D65 illuminant (x=0.3127, y=0.3290)', () => {
+    const cct = calcularCCTMcCamy(0.3127, 0.3290)
+    expect(cct).toBeGreaterThan(6300)
+    expect(cct).toBeLessThan(6700)
+  })
+
+  it('returns ~2856K for illuminant A (x=0.4476, y=0.4074)', () => {
+    const cct = calcularCCTMcCamy(0.4476, 0.4074)
+    expect(cct).toBeGreaterThan(2800)
+    expect(cct).toBeLessThan(3000)
+  })
+
+  it('returns 0 when denominator is zero (y = 0.1858)', () => {
+    expect(calcularCCTMcCamy(0.3, 0.1858)).toBe(0)
+  })
+
+  it('increases with x when y < 0.1858 (positive denominator)', () => {
+    const yFixed = 0.10
+    const cct1 = calcularCCTMcCamy(0.33, yFixed)
+    const cct2 = calcularCCTMcCamy(0.34, yFixed)
+    const cct3 = calcularCCTMcCamy(0.35, yFixed)
+    expect(cct1).toBeLessThan(cct2)
+    expect(cct2).toBeLessThan(cct3)
+  })
+})
+
+describe('processarAS7341', () => {
+  const dadosExemplo = {
+    'F1': 0.044107, 'F2': 0.115193, 'F3': 0.140455, 'F4': 0.149534,
+    'F5': 0.382473, 'F6': 0.418209, 'F7': 0.446454, 'F8': 0.119507,
+    'Clear': 0.661343, 'NIR': 0.078555,
+  }
+
+  it('returns an object with all expected keys', () => {
+    const res = processarAS7341(dadosExemplo)
+    const expectedKeys = ['X', 'Y', 'Z', 'x', 'y', 'z', 'Lux', 'u_prime', 'v_prime', 'CCT', 'CCT_Status']
+    for (const key of expectedKeys) {
+      expect(res).toHaveProperty(key)
+    }
+  })
+
+  it('produces positive X, Y, Z for valid input', () => {
+    const res = processarAS7341(dadosExemplo)
+    expect(res.X).toBeGreaterThan(0)
+    expect(res.Y).toBeGreaterThan(0)
+    expect(res.Z).toBeGreaterThan(0)
+  })
+
+  it('computes chromaticity coordinates x+y+z ≈ 1', () => {
+    const res = processarAS7341(dadosExemplo)
+    const sum = res.x + res.y + res.z
+    expect(sum).toBeCloseTo(1.0, 1)
+  })
+
+  it('Lux equals 683 * Y', () => {
+    const res = processarAS7341(dadosExemplo)
+    expect(res.Lux).toBeCloseTo(683.0 * res.Y, 2)
+  })
+
+  it('accepts custom config (offsets, fatoresEscala, matrizXYZ)', () => {
+    const config = {
+      offsets: { 'F1': 0, 'F2': 0, 'F3': 0, 'F4': 0, 'F5': 0, 'F6': 0, 'F7': 0, 'F8': 0, 'Clear': 0, 'NIR': 0 },
+      fatoresEscala: { 'F1': 1, 'F2': 1, 'F3': 1, 'F4': 1, 'F5': 1, 'F6': 1, 'F7': 1, 'F8': 1, 'Clear': 1, 'NIR': 1 },
+    }
+    const res = processarAS7341(dadosExemplo, config)
+    expect(res.CCT).toBeGreaterThan(0)
   })
 })

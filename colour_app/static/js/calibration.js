@@ -1,4 +1,4 @@
-export { channel_name, channel_wl, counts, sensor_offset, sensor_factor, reconstruction_wl, xN, yN, zN, correction_matrix };
+export { channel_name, channel_wl, counts, sensor_offset, sensor_factor, reconstruction_wl, xN, yN, zN, correction_matrix, calcularCCTMcCamy, processarAS7341 };
 
 // Channel Data
 const channel_name = ["F1","F2","F3","F4","F5","F6","F7","F8","Clear (peak)","NIR"];
@@ -102,17 +102,19 @@ function processarAS7341(contagensBrutas, config = {}) {
 }
 
 // --- TESTE COM OS DADOS DE EXEMPLO ---
-const dadosExemplo = {
-    'F1': 0.044107, 'F2': 0.115193, 'F3': 0.140455, 'F4': 0.149534,
-    'F5': 0.382473, 'F6': 0.418209, 'F7': 0.446454, 'F8': 0.119507,
-    'Clear': 0.661343, 'NIR': 0.078555
-};
+if (typeof process === 'undefined' || !process.env?.VITEST) {
+    const dadosExemplo = {
+        'F1': 0.044107, 'F2': 0.115193, 'F3': 0.140455, 'F4': 0.149534,
+        'F5': 0.382473, 'F6': 0.418209, 'F7': 0.446454, 'F8': 0.119507,
+        'Clear': 0.661343, 'NIR': 0.078555
+    };
 
-const res = processarAS7341(dadosExemplo);
+    const res = processarAS7341(dadosExemplo);
 
-console.log("--- RESULTADOS FOTOMÉTRICOS & CCT ---");
-console.log(`X: ${res.X.toFixed(6)} | Y: ${res.Y.toFixed(6)} | Z: ${res.Z.toFixed(6)}`);
-console.log(`x: ${res.x.toFixed(6)} | y: ${res.y.toFixed(6)}`);
-console.log(`u': ${res.u_prime.toFixed(6)} | v': ${res.v_prime.toFixed(6)}`);
-console.log(`Lux: ${res.Lux.toFixed(2)} lx`);
-console.log(`CCT: ${res.CCT.toFixed(2)} K (${res.CCT_Status})`);
+    console.log("--- RESULTADOS FOTOMÉTRICOS & CCT ---");
+    console.log(`X: ${res.X.toFixed(6)} | Y: ${res.Y.toFixed(6)} | Z: ${res.Z.toFixed(6)}`);
+    console.log(`x: ${res.x.toFixed(6)} | y: ${res.y.toFixed(6)}`);
+    console.log(`u': ${res.u_prime.toFixed(6)} | v': ${res.v_prime.toFixed(6)}`);
+    console.log(`Lux: ${res.Lux.toFixed(2)} lx`);
+    console.log(`CCT: ${res.CCT.toFixed(2)} K (${res.CCT_Status})`);
+}
