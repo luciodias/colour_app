@@ -31,10 +31,9 @@ THE SOFTWARE.
 
 import asyncio
 import sys
-
 from struct import unpack_from
 
-from libs.tools.typing import Any
+from ..tools.typing import Any
 
 try:
     from micropython import const  # pyright: ignore[reportMissingImports]

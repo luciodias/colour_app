@@ -1,7 +1,6 @@
 import asyncio
 import os
 import ssl
-import sys
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from colour_app import app

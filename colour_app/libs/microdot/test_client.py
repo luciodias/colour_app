@@ -1,5 +1,5 @@
 import asyncio
-from microdot.microdot import Request, Response, AsyncBytesIO
+from .microdot import Request, Response, AsyncBytesIO
 
 try:
     from microdot.websocket import WebSocket
