@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { multiply } from '../../colour_app/static/matrix.js'
+import { multiply } from '../../colour_app/static/js/matrix.js'
 
 describe('multiply', () => {
   it('multiplies two 2x2 matrices', () => {
