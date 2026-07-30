@@ -27,7 +27,7 @@ async def test_save_config(client, monkeypatch):
 
 
 async def test_static_ok(client):
-    res = await client.get("/static/styles.css")
+    res = await client.get("/static/css/styles.css")
     assert res.status_code == 200
 
 

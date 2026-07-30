@@ -68,7 +68,7 @@ async def index(request) -> str:
 @app.route("/favicon.ico")
 async def favicon(request) -> str:
     print(request.path)
-    return send_file(f"{cwd}static/favicon.ico")
+    return send_file(f"{cwd}static/img/favicon.ico")
 
 
 # Static route
