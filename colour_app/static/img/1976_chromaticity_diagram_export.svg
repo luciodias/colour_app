@@ -72,130 +72,28 @@
     <g
        id="grade"
        style="display:inline">
-      <g
-         id="h">
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           stroke-linecap="square"
-           x1="75"
-           y1="78"
-           x2="75"
-           y2="295"
-           id="a5" />
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           stroke-linecap="square"
-           x1="110"
-           y1="78"
-           x2="110"
-           y2="295"
-           id="a6" />
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           stroke-linecap="square"
-           x1="145"
-           y1="78"
-           x2="145"
-           y2="295"
-           id="a7" />
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           stroke-linecap="square"
-           x1="180"
-           y1="78"
-           x2="180"
-           y2="295"
-           id="a8" />
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           x1="215"
-           y1="78"
-           x2="215"
-           y2="295"
-           id="a9" />
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           x1="250"
-           y1="78"
-           x2="250"
-           y2="295"
-           id="a10" />
+      <g id="h">
+        <defs><line id="lh" fill="none" stroke="#ccc" stroke-width="0.6" stroke-linecap="square"
+            x1="0" y1="78" x2="0" y2="295"/>
+         </defs>
+         <use x="75" href="#lh"/>
+         <use x="110" href="#lh"/>
+         <use x="145" href="#lh"/>
+         <use x="180" href="#lh"/>
+         <use x="215" href="#lh"/>
+         <use x="250" href="#lh"/>
+
       </g>
-      <g
-         id="vert"
-         style="display:inline"
-         transform="matrix(1,0,0,-1,0,380)">
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           stroke-linecap="square"
-           x1="40"
-           y1="225"
-           x2="271"
-           y2="225"
-           id="a11" />
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           x1="40"
-           y1="190"
-           x2="271"
-           y2="190"
-           id="a12" />
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           x1="40"
-           y1="155"
-           x2="271"
-           y2="155"
-           id="a13" />
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           x1="40"
-           y1="120"
-           x2="271"
-           y2="120"
-           id="a14" />
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           stroke-linecap="square"
-           x1="40"
-           y1="85"
-           x2="271"
-           y2="85"
-           id="a15"
-           style="display:none" />
-        <line
-           fill="none"
-           stroke="#a6c8ff"
-           stroke-width="0.6"
-           stroke-linecap="square"
-           x1="40"
-           y1="260"
-           x2="271"
-           y2="260"
-           id="a16"
-           style="display:inline" />
+      <g id="vert">
+         <defs><line id="lv" fill="none" stroke="#ccc" stroke-width="0.6" stroke-linecap="square"
+            x1="40" y1="0" x2="271" y2="0"/>
+         </defs>
+         <use y="85" href="#lv"/>
+         <use y="120" href="#lv"/>
+         <use y="155" href="#lv"/>
+         <use y="190" href="#lv"/>
+         <use y="225" href="#lv"/>
+         <use y="260" href="#lv"/>
       </g>
     </g>
     <image
