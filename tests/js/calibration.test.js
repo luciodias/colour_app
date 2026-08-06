@@ -19,7 +19,7 @@ describe('calibration data', () => {
   })
 
   it('channel names are correct labels', () => {
-    expect(channel_name).toEqual(['F1','F2','F3','F4','F5','F6','F7','F8','Clear (peak)','NIR'])
+    expect(channel_name).toEqual(['F1','F2','F3','F4','F5','F6','F7','F8','Clear','NIR'])
   })
 
   it('sensor_offset values are small positive numbers', () => {
@@ -36,7 +36,7 @@ describe('calibration data', () => {
     }
   })
 
-  it('reconstruction_wl covers 380–1100', () => {
+  it('reconstruction_wl covers 380-1100', () => {
     expect(reconstruction_wl).toHaveLength(721)
     expect(reconstruction_wl[0]).toBe(380)
     expect(reconstruction_wl[reconstruction_wl.length - 1]).toBe(1100)
@@ -48,7 +48,7 @@ describe('calibration data', () => {
     expect(zN).toHaveLength(401)
   })
 
-  it('correction_matrix is a flat array of 7200 numbers (10 channels × 720)', () => {
+  it('correction_matrix is a flat array of 7200 numbers (10 channels x 720)', () => {
     expect(correction_matrix).toHaveLength(7200)
     for (const v of correction_matrix) {
       expect(typeof v).toBe('number')
