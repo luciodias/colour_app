@@ -1,4 +1,4 @@
-export { channel_name, channel_wl, counts, sensor_offset, sensor_factor, reconstruction_wl, xN, yN, zN, correction_matrix, calcularCCTMcCamy, processarAS7341 };
+export { multiply, channel_name, channel_wl, counts, sensor_offset, sensor_factor, reconstruction_wl, xN, yN, zN, correction_matrix, calcularCCTMcCamy, processarAS7341 };
 
 // Channel Data
 const channel_name = ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'Clear', 'NIR'];
@@ -33,6 +33,31 @@ function calcularCCTMcCamy(x, y) {
     const n = (x - 0.3320) / divisor;
     const cct = 437.0 * Math.pow(n, 3) + 3601.0 * Math.pow(n, 2) + 6861.0 * n + 5517.0;
     return cct;
+}
+
+/**
+ * Calcula a Temperatura de Cor Correlacionada (CCT) usando a aproximação de McCamy.
+ */
+function multiply(matrizA, colunasA, matrizB, colunasB) {
+    const linhasA = Math.floor(matrizA.length / colunasA);
+    const linhasB = Math.floor(matrizB.length / colunasB);
+    // Verifica se a multiplicação é possível
+    if (colunasA !== linhasB) {
+        throw new Error("Número de colunas de A deve ser igual ao número de linhas de B");
+    }
+
+    const resultado = new Array(linhasA * colunasB).fill(0);
+
+    for (let i = 0; i < linhasA; i++) {
+        for (let j = 0; j < colunasB; j++) {
+            for (let k = 0; k < colunasA; k++) {
+                const a = matrizA[i * colunasA + k];
+                const b = matrizB[k * colunasB + j];
+                resultado[i * colunasB + j] += a * b;
+            }
+        }
+    }
+    return resultado;
 }
 
 /**
