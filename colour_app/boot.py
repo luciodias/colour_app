@@ -1,15 +1,43 @@
 # This file is executed on every boot (including wake-boot from deepsleep)
-import esp          # pyright: ignore[reportMissingImports]
-import network      # pyright: ignore[reportMissingImports]
-import requests     # pyright: ignore[reportMissingImports]
-import utime        # pyright: ignore[reportMissingImports]
-import webrepl      # pyright: ignore[reportMissingImports]
+import esp  # pyright: ignore[reportMissingImports]
+import network  # pyright: ignore[reportMissingImports]
+import utime  # pyright: ignore[reportMissingImports]
+import webrepl  # pyright: ignore[reportMissingImports]
 
-from env import AP_CONFIG, HOST, KNOWN_NETWORKS, NOTIFICATION_API
+try:
+    from env import AP_CONFIG, HOST, KNOWN_NETWORKS, NOTIFICATION_API
+except ImportError:
+    # Fallback for when env.py is not available (e.g., CI/CD)
+    class _DummyConfig:
+        AP_CONFIG = {"SSID": "default", "PASS": ""}
+        HOST = "colour-sensor"
+        KNOWN_NETWORKS = {}
+        NOTIFICATION_API = ""
+
+    AP_CONFIG = _DummyConfig().AP_CONFIG
+    HOST = _DummyConfig().HOST
+    KNOWN_NETWORKS = _DummyConfig().KNOWN_NETWORKS
+    NOTIFICATION_API = _DummyConfig().NOTIFICATION_API
 
 esp.osdebug(0, esp.LOG_DEBUG)
 network.hostname(HOST)
 webrepl.start()
+
+
+def _post_notification(api_url, data):
+    """Post notification using requests (CPython) or urequests (MicroPython)."""
+    try:
+        import requests  # type: ignore[reportMissingImport]
+    except ImportError:
+        try:
+            import urequests as requests  # type: ignore[reportMissingImport]
+        except ImportError:
+            return  # No HTTP client available
+
+    try:
+        requests.post(api_url, data=data, timeout=5)
+    except Exception:
+        pass
 
 
 def setup_interfaces():
@@ -58,10 +86,7 @@ def setup_interfaces():
         if sta_if.isconnected():
             msg = f"Conectado com sucesso!\nIP: {sta_if.ifconfig()[0]}"
             print(msg)
-            requests.post(
-                NOTIFICATION_API,
-                data=msg.encode(),
-            )
+            _post_notification(NOTIFICATION_API, msg.encode())
         else:
             print("\n[STA] Falha ao conectar (timeout).")
     else:

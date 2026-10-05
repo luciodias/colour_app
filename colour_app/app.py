@@ -1,14 +1,13 @@
-# from microdot.utemplate import Template
 import asyncio
 import json
 import os
 import ssl
 import sys
+from typing import Any
 
 from libs.microdot import Microdot, Response, send_file
 from libs.microdot.utemplate import Template
 from libs.microdot.websocket import with_websocket
-from libs.tools.typing import Any
 
 color_sensor = None
 try:
@@ -57,8 +56,20 @@ def save_config(config: dict[str, Any]) -> None:
 
 config: dict[str, Any] = load_config()
 
+# =========================
+# AUTENTICAÇÃO SIMPLES (placeholder)
+# =========================
+def check_auth(request) -> bool:
+    """Verificar autenticação para endpoints sensíveis.
+    Implementar verificação de token/API key conforme necessidade.
+    """
+    # TODO: Implementar autenticação real (token, API key, etc.)
+    return True
 
+# =========================
 # ROTAS
+# =========================
+
 @app.route("/")
 async def index(request) -> str:
     # return Template('index.html').generate(name='Name 2')
@@ -73,7 +84,7 @@ async def favicon(request) -> str:
 
 # Static route
 @app.route("/static/<path:path>")
-def static(request, path):
+def static(request, path) -> str:
     try:
         if ".." in path:
             # directory traversal is not allowed
@@ -82,6 +93,7 @@ def static(request, path):
     except (OSError, FileNotFoundError):
         print(path)
         raise(OSError)
+
 
 @app.route("/measure")
 async def measure(request) -> str:
@@ -95,9 +107,10 @@ async def measure(request) -> str:
         )
     return 503
 
+
 @app.route('/ws')
 @with_websocket
-async def ws(request, ws):
+async def ws(request, ws):  # type: ignore[assignment]
     try:
         while True:
             message = await ws.receive()
@@ -115,6 +128,9 @@ async def dashboard(request) -> str:
 async def config_page(request) -> dict[str, Any]:
     global config
 
+    if not check_auth(request):
+        return {"error": "unauthorized"}, 401
+
     if request.method == "POST":
         try:
             data = request.json
@@ -126,7 +142,7 @@ async def config_page(request) -> dict[str, Any]:
 
             return {"status": "ok"}
 
-        except Exception as e:
+        except (ValueError, TypeError, AttributeError) as e:
             return {"error": str(e)}, 400
 
     # GET
@@ -149,10 +165,12 @@ async def reset_config(request) -> dict[str, Any]:
 # =========================
 # CORS (básico)
 # =========================
-# @app.after_request
-# async def after_request(request, response) -> Any:
-#     response.headers["Access-Control-Allow-Origin"] = "*"
-#     return response
+@app.after_request
+async def after_request(request, response) -> Any:
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
 async def main():
     # server = asyncio.create_task(app.start_server(debug=True, port=80))
     #await server

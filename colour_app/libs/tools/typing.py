@@ -6,23 +6,23 @@ def cast(type, val):
 
 
 def get_origin(type):
-    return None # pragma: no cover
+    return None
 
 
 def get_args(type):
-    return () # pragma: no cover
+    return ()
 
 
 def no_type_check(func):
-    return func # pragma: no cover
+    return func
 
 
 def overload(func):
-    return None # pragma: no cover
+    return None
 
 
 def override(func):
-    return func # pragma: no cover
+    return func
 
 
 class _AnyCall:
@@ -30,10 +30,10 @@ class _AnyCall:
         pass
 
     def __call__(*args, **kwargs):
-        pass # pragma: no cover
+        pass
 
     def __getitem__(self, arg):
-        return _anyCall # pragma: no cover
+        return _anyCall
 
 
 _anyCall = _AnyCall()
@@ -46,15 +46,20 @@ class _SubscriptableType:
 
 _Subscriptable = _SubscriptableType()
 
+
 class Any:
     pass
 
-def TypeVar(name, *types, bound: Any | None = None, covariant=False, contravariant=False, infer_variance=False):
-    return None # pragma: no cover
+
+Any = Any  # type: ignore[assignment]
+
+
+def TypeVar(name, *types, bound=None, covariance=False, contravariant=False, infer_variance=False):
+    return None
 
 
 def NewType(name, type):
-    return type # pragma: no cover
+    return type
 
 
 class BinaryIO:
@@ -121,49 +126,41 @@ class Protocol:
     pass
 
 
-AnyStr = str
-TypedDict = dict
-
-# Deprecated
-# Text = str
-# Pattern = str
-# Match = str
-
-AbstractSet = _Subscriptable
-AsyncContextManager = _Subscriptable
-AsyncGenerator = _Subscriptable
-AsyncIterable = _Subscriptable
-AsyncIterator = _Subscriptable
-Awaitable = _Subscriptable
-Callable = _Subscriptable
-ChainMap = _Subscriptable
-Collection = _Subscriptable
-Container = _Subscriptable
-ContextManager = _Subscriptable
-Coroutine = _Subscriptable
-Counter = _Subscriptable
-DefaultDict = _Subscriptable
-Deque = _Subscriptable
-Dict = _Subscriptable
-FrozenSet = _Subscriptable
-Generator = _Subscriptable
-Generic = _Subscriptable
-Iterable = _Subscriptable
-Iterator = _Subscriptable
-List = _Subscriptable
-Literal = _Subscriptable
-Mapping = _Subscriptable
-MutableMapping = _Subscriptable
-MutableSequence = _Subscriptable
-MutableSet = _Subscriptable
-NamedTuple = _Subscriptable
-Optional = _Subscriptable
-OrderedDict = _Subscriptable
-Self = _Subscriptable
-Sequence = _Subscriptable
-Set = _Subscriptable
-Tuple = _Subscriptable
-Type = _Subscriptable
-Union = _Subscriptable
-
 TYPE_CHECKING = False
+
+AbstractSet = dict
+AsyncContextManager = dict
+AsyncGenerator = dict
+AsyncIterable = dict
+AsyncIterator = dict
+Awaitable = dict
+Callable = dict
+ChainMap = dict
+Collection = dict
+Container = dict
+ContextManager = dict
+Coroutine = dict
+Counter = dict
+DefaultDict = dict
+Deque = dict
+Dict = dict
+FrozenSet = dict
+Generator = dict
+Generic = dict
+Iterable = dict
+Iterator = dict
+List = dict
+Literal = dict
+Mapping = dict
+MutableMapping = dict
+MutableSequence = dict
+MutableSet = dict
+NamedTuple = dict
+Optional = dict
+OrderedDict = dict
+Self = dict
+Sequence = dict
+Set = dict
+Tuple = dict
+Type = dict
+Union = dict
