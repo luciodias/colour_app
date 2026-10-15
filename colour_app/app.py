@@ -8,12 +8,9 @@ import sys
 from libs.microdot import Microdot, Response, send_file
 from libs.microdot.utemplate import Template
 from libs.microdot.websocket import with_websocket
-try:
-    from typing import Any
-except ImportError as e:
-#if sys.implementation.name == 'micropython':
-    from libs.tools.typing import Any
-
+from typing import Any
+if sys.implementation.name == 'micropython':
+    from libs.tools.typing import Any  # noqa
 
 color_sensor = None
 try:
@@ -38,7 +35,7 @@ CONFIG_FILE = "config.json"
 # =========================
 # CONFIGURAÇÃO PADRÃO
 # =========================
-default_config: dict[str, Any] = {
+default_config: dict = {
     "update_interval": 3,
     "temp_threshold": 0,
     "humidity_threshold": 0,
@@ -46,7 +43,7 @@ default_config: dict[str, Any] = {
 
 
 # CARREGAR CONFIG
-def load_config() -> dict[str, Any]:
+def load_config() -> dict:
     try:
         with open(CONFIG_FILE, "r") as f:
             return json.load(f)
@@ -55,23 +52,23 @@ def load_config() -> dict[str, Any]:
         return default_config
 
 
-def save_config(config: dict[str, Any]) -> None:
+def save_config(config: dict) -> None:
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f)
 
 
-config: dict[str, Any] = load_config()
+config: dict = load_config()
 
 
 # ROTAS
 @app.route("/")
-async def index(request) -> str:
+async def index(request) -> Response:
     # return Template('index.html').generate(name='Name 2')
     return send_file(f"{cwd}templates/pwa.html")
 
 
 @app.route("/favicon.ico")
-async def favicon(request) -> str:
+async def favicon(request) -> Response:
     print(request.path)
     return send_file(f"{cwd}static/favicon.ico")
 
@@ -113,7 +110,7 @@ async def dashboard(request) -> str:
 
 
 @app.route("/config", methods=["GET", "POST"])
-async def config_page(request):
+async def config_page(request) -> dict | Response:
     global config
 
     if request.method == "POST":
@@ -135,12 +132,12 @@ async def config_page(request):
 
 
 @app.route("/config-data")
-async def get_config(request) -> dict[str, Any]:
+async def get_config(request) -> dict:
     return config
 
 
 @app.route("/reset-config", methods=["POST"])
-async def reset_config(request) -> dict[str, Any]:
+async def reset_config(request) -> dict:
     global config  # pragma: no cover
     config = default_config
     save_config(config)
@@ -172,4 +169,4 @@ async def main():
 # RUN
 # =========================
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main()) 
