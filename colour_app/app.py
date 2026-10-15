@@ -64,7 +64,7 @@ config: dict = load_config()
 @app.route("/")
 async def index(request) -> Response:
     # return Template('index.html').generate(name='Name 2')
-    return send_file(f"{cwd}templates/pwa.html")
+    return send_file(f"{cwd}templates/index.html")
 
 
 @app.route("/favicon.ico")
