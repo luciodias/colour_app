@@ -8,7 +8,12 @@ import sys
 from libs.microdot import Microdot, Response, send_file
 from libs.microdot.utemplate import Template
 from libs.microdot.websocket import with_websocket
-from libs.tools.typing import Any
+try:
+    from typing import Any
+except ImportError as e:
+#if sys.implementation.name == 'micropython':
+    from libs.tools.typing import Any
+
 
 color_sensor = None
 try:
@@ -25,7 +30,7 @@ print(color_sensor)
 app = Microdot()
 Response.default_content_type = "text/html"
 
-cwd = "" if "colour_app" not in os.listdir() else "colour_app/"
+cwd = "colour_app/" if "colour_app" in os.listdir() else ""
 Template.initialize(f"{cwd}templates")
 
 CONFIG_FILE = "config.json"
@@ -81,19 +86,15 @@ def static(request, path):
         return send_file(f"{cwd}static/" + path, max_age=86400)
     except (OSError, FileNotFoundError):
         print(path)
-        raise(OSError)
+        return "Not found", 404
 
 @app.route("/measure")
-async def measure(request) -> str:
+async def measure(request) -> Response:
     if color_sensor:
         m = await color_sensor.get_measurements()
         print(m)
-        return (
-            m,
-            200,
-            {"Content-Type": "application/json"},
-        )
-    return 503
+        return Response(m, 200)
+    return Response("503", 503)
 
 @app.route('/ws')
 @with_websocket
@@ -112,7 +113,7 @@ async def dashboard(request) -> str:
 
 
 @app.route("/config", methods=["GET", "POST"])
-async def config_page(request) -> dict[str, Any]:
+async def config_page(request):
     global config
 
     if request.method == "POST":
@@ -127,7 +128,7 @@ async def config_page(request) -> dict[str, Any]:
             return {"status": "ok"}
 
         except Exception as e:
-            return {"error": str(e)}, 400
+            return Response(str(e), 400)
 
     # GET
     return send_file(f"{cwd}templates/config.html")
@@ -156,7 +157,7 @@ async def reset_config(request) -> dict[str, Any]:
 async def main():
     # server = asyncio.create_task(app.start_server(debug=True, port=80))
     #await server
-    ext = "der" if sys.implementation.name == "micropython" else "pem"
+    ext = "pem" if sys.implementation.name == "micropython" else "der"
     sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     print(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
     sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
