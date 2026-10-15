@@ -70,8 +70,28 @@ test = 'pytest -s -x --cov=colour_app -vv'
 post_test = 'coverage html'
 build = 'poetry run python tools/build.py'
 
+[tool.ruff]
+line-length = 140
+target-version = "py39"
+builtins = ["ptr", "ptr8", "ptr16", "ptr32", "uint", "micropython", "const"]
+
 [tool.ruff.lint]
+extend-select = [
+    "PYI", # flake8-pyi - stub file specific checks
+]
 ignore = [
+    "F401",   # unused import
+    "F403",   # import *
+    "E402",   # module level import not at top of file - common in test snippets
+    "PYI021", # Docstrings should not be included in stubs (but we want them for MicroPython)
+    "PYI044", # `from __future__ import annotations` - used in generated stubs
+    "PYI048", # Function body must contain exactly one statement - docstrings count
+    "PYI011", # Only simple default values allowed for typed arguments - we want actual defaults
+    "PYI014", # Only simple default values allowed for arguments - we want actual defaults
+    "PYI029", # __str__ and __repr__ are useful in MicroPython stubs
     "UP032",    # Checks for str.format calls that can be replaced with f-strings.
     "BLE001",   # Checks for except clauses that catch all exceptions.
-    ]
+]
+
+[tool.ty.rules]
+unresolved-import = "ignore"
