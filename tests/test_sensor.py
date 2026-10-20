@@ -25,7 +25,6 @@ def mock_as7341():
         patch.object(sensor.AS7341, "set_again"),
         patch.object(sensor.AS7341, "isconnected", return_value=True),
         patch.object(sensor.AS7341, "get_spectral_data", return_value=(1, 2, 3, 4, 5, 6)),
-        patch.object(sensor.AS7341, "start_measure"),
         patch.object(sensor.AS7341, "measurement_completed", return_value=True),
         patch.object(sensor.AS7341, "_modify_reg"),
         patch.object(sensor.AS7341, "_write_byte"),
@@ -45,9 +44,11 @@ def _make_sensor():
     return Sensor()
 
 
-def test_sensor_init():
+async def test_sensor_init():
     sensor_inst = _make_sensor()
     assert sensor_inst is not None
+    assert sensor_inst._connected is False
+    await sensor_inst.init()
     assert sensor_inst._connected is True
 
 

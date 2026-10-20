@@ -70,7 +70,7 @@ async def index(request) -> Response:
 @app.route("/favicon.ico")
 async def favicon(request) -> Response:
     print(request.path)
-    return send_file(f"{cwd}static/favicon.ico")
+    return send_file(f"{cwd}static/img/favicon.ico")
 
 
 # Static route
@@ -147,11 +147,13 @@ async def reset_config(request) -> dict:
 # =========================
 # CORS (básico)
 # =========================
-# @app.after_request
-# async def after_request(request, response) -> Any:
-#     response.headers["Access-Control-Allow-Origin"] = "*"
-#     return response
+    # @app.after_request
+    # async def after_request(request, response) -> Any:
+    #     response.headers["Access-Control-Allow-Origin"] = "*"
+    #     return response
 async def main():
+    if color_sensor:
+        await color_sensor.init()
     # server = asyncio.create_task(app.start_server(debug=True, port=80))
     #await server
     ext = "pem" if sys.implementation.name == "micropython" else "der"

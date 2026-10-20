@@ -1,0 +1,14 @@
+{
+  "name": "colour_app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.7",
+    "jsdom": "^30.0.1",
+    "vitest": "^3.1.1"
+  }
+}
