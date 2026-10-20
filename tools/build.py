@@ -37,7 +37,7 @@ def build_project():
         build_dir.mkdir(parents=True, exist_ok=True)
 
         # 5. Run the compilation command
-        command = ["uv", "run", "mpy-cross", str(py_file), "-o", str(mpy_file)]
+        command = ["uv", "run", "--group", "esp", "mpy-cross", str(py_file), "-o", str(mpy_file)]
         
         console.print(f"  [yellow]-> Running:[/yellow] {' '.join(command)}")
         

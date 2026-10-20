@@ -70,7 +70,7 @@ format = 'ruff format'
 #pre_test = 'task lint'
 test = 'pytest -s -x --cov=colour_app -vv'
 post_test = 'coverage html'
-build = 'poetry run python tools/build.py'
+build = 'uv run python tools/build.py'
 
 [tool.ruff]
 line-length = 140
