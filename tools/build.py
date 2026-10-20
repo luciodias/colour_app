@@ -18,7 +18,7 @@ def build_project():
         # Skip the build script itself if it's in the directory being scanned
         relative_path = py_file.relative_to(Path("."))
         dir_name = relative_path.parent
-        if str(relative_path.parent) in ("tools"):
+        if relative_path.parts[0] in ("tools", ".venv"):
             continue
         build_dir = Path("build") / dir_name
         file_name_base = py_file.stem
@@ -37,7 +37,7 @@ def build_project():
         build_dir.mkdir(parents=True, exist_ok=True)
 
         # 5. Run the compilation command
-        command = ["poetry", "run", "mpy-cross", str(py_file), "-o", str(mpy_file)]
+        command = ["uv", "run", "mpy-cross", str(py_file), "-o", str(mpy_file)]
         
         console.print(f"  [yellow]-> Running:[/yellow] {' '.join(command)}")
         
@@ -58,7 +58,7 @@ def build_project():
             console.print(f"[red]ERROR:[/red] Failed to compile {py_file}.")
             console.print(f"  [red]Stderr:[/red]\n{e.stderr}")
         except FileNotFoundError:
-            console.print("[red]FATAL ERROR:[/red] 'poetry' or 'mpy-cross' command not found. Ensure Poetry and mpy-cross are installed and in PATH.")
+            console.print("[red]FATAL ERROR:[/red] 'uv' or 'mpy-cross' command not found. Ensure uv and mpy-cross are installed and in PATH.")
             break
 
     console.print("\n[green]Build process finished.[/green]")
