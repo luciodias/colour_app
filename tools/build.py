@@ -51,6 +51,7 @@ def build_project():
             )
             
             console.print(f"[green]SUCCESS:[/green] Compiled and saved to [cyan]{mpy_file}[/cyan]")
+            console.print(result)
             # If mpy-cross prints something useful, we might log it, but for simplicity, we assume success if no error is raised.
 
         except subprocess.CalledProcessError as e:
