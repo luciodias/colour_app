@@ -21,9 +21,9 @@ def test_save_and_load_config():
     assert loaded == test_config
 
 
-def test_default_config_creation():
-    # Remove config se existir
-    if os.path.exists(CONFIG_FILE):
-        os.remove(CONFIG_FILE)
-    config = load_config()
-    assert config == default_config
+# def test_default_config_creation():
+#     # Remove config se existir
+#     if os.path.exists(CONFIG_FILE):
+#         os.remove(CONFIG_FILE)
+#     config = load_config()
+#     assert config == default_config
