@@ -1,55 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Configurações</title>
-</head>
-<body>
+{% args title='Configurações', page='config', active='config' %}
+{% include '_head.html' title=title, page=page %}
+{% include '_nav.html' active=active %}
+<main class="container page">
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">Sistema</p>
+            <h1>Configurações</h1>
+            <p class="muted">Ajustes persistidos em <code>config.json</code> no dispositivo.</p>
+        </div>
+    </header>
 
-<h1>⚙️ Configurações</h1>
+    <form id="configForm" class="card form-grid">
+        <label for="interval">Intervalo de medição (s)</label>
+        <input type="number" id="interval" name="update_interval" min="1" max="60" step="1" required>
 
-<form id="configForm">
-    Intervalo (s): <input type="number" id="interval"><br>
-    Temp Threshold: <input type="number" id="temp"><br>
-    Humidity Threshold: <input type="number" id="hum"><br>
-    <button type="submit">Salvar</button>
-</form>
+        <label for="temp">Limite de temperatura (°C)</label>
+        <input type="number" id="temp" name="temp_threshold" step="1">
 
-<button onclick="resetConfig()">Resetar</button>
+        <label for="hum">Limite de humidade (%)</label>
+        <input type="number" id="hum" name="humidity_threshold" min="0" max="100" step="1">
 
-<script>
-async function loadConfig() {
-    const res = await fetch('/config-data');
-    const cfg = await res.json();
-
-    document.getElementById('interval').value = cfg.update_interval;
-    document.getElementById('temp').value = cfg.temp_threshold;
-    document.getElementById('hum').value = cfg.humidity_threshold;
-}
-
-document.getElementById('configForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    await fetch('/config', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            update_interval: document.getElementById('interval').value,
-            temp_threshold: document.getElementById('temp').value,
-            humidity_threshold: document.getElementById('hum').value
-        })
-    });
-
-    alert("Salvo!");
-});
-
-async function resetConfig() {
-    await fetch('/reset-config', { method: 'POST' });
-    loadConfig();
-}
-
-loadConfig();
-</script>
-
-</body>
-</html>
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Salvar</button>
+            <button type="button" id="resetConfig" class="btn-secondary">Resetar</button>
+        </div>
+        <p id="config-status" class="form-status" role="status" aria-live="polite"></p>
+    </form>
+</main>
+{% include '_tail.html' %}

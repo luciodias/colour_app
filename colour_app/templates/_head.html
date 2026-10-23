@@ -1,0 +1,15 @@
+{% args title='Colour App', page='', css='' %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <meta name="description" content="Monitorização espectral de cor com sensor AS7341">
+    <meta name="theme-color" content="#6200ee">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="icon" href="/static/img/favicon.ico">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    {% if css %}<link rel="stylesheet" href="/static/css/{{ css }}">{% endif %}
+</head>
+<body data-page="{{ page }}">

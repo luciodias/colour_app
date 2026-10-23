@@ -1,15 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-</head>
-<body>
-
-<h1>Sistema IoT</h1>
-
-<a href="/dashboard"> 📊 Dashboard</a><br>
-<a href="/config"> ⚙️ Configurações</a>
-
-</body>
-</html>
+{% args title='Colour App', page='home', active='home' %}
+{% include '_head.html' title=title, page=page %}
+{% include '_nav.html' active=active %}
+<main class="container home-hero">
+    <section class="hero-card">
+        <p class="eyebrow">Monitorização espectral</p>
+        <h1>Veja a cor do mundo em tempo real</h1>
+        <p class="lead">
+            Dashboard para o sensor AS7341: espectro, cromaticidade CIE 1931 e deteção de flicker,
+            servido diretamente pelo ESP32.
+        </p>
+        <div class="hero-actions">
+            <a class="btn-primary" href="/dashboard#overview">Abrir dashboard</a>
+            <a class="btn-secondary" href="/config">Configurar</a>
+        </div>
+    </section>
+    <section class="feature-grid" aria-label="Funcionalidades">
+        <article class="feature-card">
+            <h2>Espectro</h2>
+            <p>Leituras dos 8 canais visíveis, clear e NIR em tempo real.</p>
+        </article>
+        <article class="feature-card">
+            <h2>CIE 1931</h2>
+            <p>Posição cromática xy com marcador ao vivo e CCT aproximado.</p>
+        </article>
+        <article class="feature-card">
+            <h2>Flicker</h2>
+            <p>Série temporal do canal fd e estado de deteção de flicker.</p>
+        </article>
+    </section>
+</main>
+{% include '_tail.html' %}

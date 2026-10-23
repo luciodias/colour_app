@@ -1,16 +1,12 @@
-// Toggle Menu Mobile
-const menuToggle = document.querySelector('.menu-toggle');
-const navMenu = document.querySelector('.nav-menu');
+import { initNav } from './nav.js';
 
-menuToggle.addEventListener('click', () => {
-    navMenu.classList.toggle('active');
-});
+initNav();
 
-// Registro do Service Worker para PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/static/js/pwa_sw.js')
-            .then(reg => console.log('SW registrado!', reg))
-            .catch(err => console.log('Falha ao registrar SW', err));
+        navigator.serviceWorker
+            .register('/static/js/pwa_sw.js')
+            .then((reg) => console.log('SW registrado!', reg))
+            .catch((err) => console.log('Falha ao registrar SW', err));
     });
 }

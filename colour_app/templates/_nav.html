@@ -1,0 +1,21 @@
+{% args active='' %}
+<header class="site-header">
+    <div class="container navbar">
+        <a class="logo" href="/" aria-label="Colour App — Início">
+            <span class="logo-mark" aria-hidden="true"></span>
+            <span>Colour App</span>
+        </a>
+        <button class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="primary-nav">
+            <span class="hamburger" aria-hidden="true"></span>
+        </button>
+        <nav class="nav-menu" id="primary-nav" aria-label="Navegação principal">
+            <ul>
+                <li><a href="/" data-nav="home" class="{% if active == 'home' %}active{% endif %}">Início</a></li>
+                <li><a href="/dashboard#overview" data-nav="dashboard" class="{% if active == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+                <li><a href="/dashboard#cie" data-nav="cie" class="{% if active == 'cie' %}active{% endif %}">Diagrama CIE</a></li>
+                <li><a href="/dashboard#flicker" data-nav="flicker" class="{% if active == 'flicker' %}active{% endif %}">Flicker</a></li>
+                <li><a href="/config" data-nav="config" class="{% if active == 'config' %}active{% endif %}">Configurações</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>

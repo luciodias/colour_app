@@ -1,83 +1,132 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard IoT</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="/static/css/styles.css">
-</head>
-<body>
+{% args title='Dashboard IoT', page='dashboard', active='dashboard' %}
+{% include '_head.html' title=title, page=page, css='dashboard.css' %}
+{% include '_nav.html' active=active %}
+<main class="container page dashboard-page">
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">Sensor AS7341</p>
+            <h1>Dashboard IoT</h1>
+            <p class="muted">Espectro, cromaticidade e flicker em tempo real.</p>
+        </div>
+        <div id="connection-status" class="status-badge" data-state="connecting" role="status" aria-live="polite">
+            A ligar…
+        </div>
+    </header>
 
-<h1>📊 Dashboard IoT</h1>
-<div id="status">🔄 Sincronizando...</div>
+    <nav class="view-tabs" role="tablist" aria-label="Vistas do dashboard">
+        <a role="tab" href="#overview" data-view="overview" aria-selected="true">Espectro</a>
+        <a role="tab" href="#cie" data-view="cie" aria-selected="false">Diagrama CIE</a>
+        <a role="tab" href="#flicker" data-view="flicker" aria-selected="false">Flicker</a>
+    </nav>
 
-<canvas id="tempChart"></canvas>
-<canvas id="humChart"></canvas>
-<canvas id="alertChart"></canvas>
+    <section id="view-overview" class="view-panel" role="tabpanel" aria-label="Espectro">
+        <div class="metric-grid">
+            <article class="metric">
+                <span class="metric-label">Lux</span>
+                <strong id="metric-lux">—</strong>
+            </article>
+            <article class="metric">
+                <span class="metric-label">Total</span>
+                <strong id="metric-total">—</strong>
+            </article>
+            <article class="metric">
+                <span class="metric-label">fd</span>
+                <strong id="metric-fd">—</strong>
+            </article>
+            <article class="metric">
+                <span class="metric-label">Última leitura</span>
+                <strong id="metric-age">—</strong>
+            </article>
+        </div>
 
-<script>
-let tempData = [];
-let humData = [];
-let alertData = [];
-let labels = [];
+        <figure class="chart-card">
+            <figcaption>Espectro (contagens por canal)</figcaption>
+            <svg id="spectrum-chart" class="chart" viewBox="0 0 620 260" role="img" aria-labelledby="spectrum-title spectrum-desc">
+                <title id="spectrum-title">Espectro AS7341</title>
+                <desc id="spectrum-desc">Barras dos canais F1 a F8, clear e NIR.</desc>
+            </svg>
+        </figure>
 
-const tempChart = new Chart(document.getElementById('tempChart'), {
-    type: 'line',
-    data: {
-        labels: labels,
-        datasets: [{ label: 'Temperatura', data: tempData, borderColor: 'red' }]
-    }
-});
+        <div class="card">
+            <h2>Valores por canal</h2>
+            <div class="table-wrap">
+                <table class="channel-table">
+                    <thead>
+                        <tr><th>Canal</th><th>Valor</th></tr>
+                    </thead>
+                    <tbody id="channel-values">
+                        <tr><td>F1</td><td data-channel="f1">—</td></tr>
+                        <tr><td>F2</td><td data-channel="f2">—</td></tr>
+                        <tr><td>F3</td><td data-channel="f3">—</td></tr>
+                        <tr><td>F4</td><td data-channel="f4">—</td></tr>
+                        <tr><td>F5</td><td data-channel="f5">—</td></tr>
+                        <tr><td>F6</td><td data-channel="f6">—</td></tr>
+                        <tr><td>F7</td><td data-channel="f7">—</td></tr>
+                        <tr><td>F8</td><td data-channel="f8">—</td></tr>
+                        <tr><td>Clear</td><td data-channel="clr">—</td></tr>
+                        <tr><td>NIR</td><td data-channel="nir">—</td></tr>
+                        <tr><td>fd</td><td data-channel="fd">—</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
 
-const humChart = new Chart(document.getElementById('humChart'), {
-    type: 'line',
-    data: {
-        labels: labels,
-        datasets: [{ label: 'Humidade', data: humData, borderColor: 'blue' }]
-    }
-});
+    <section id="view-cie" class="view-panel" role="tabpanel" aria-label="Diagrama CIE" hidden>
+        <div class="cie-layout">
+            <figure class="cie-figure">
+                <div class="cie-wrap">
+                    <img id="cie-diagram" class="cie-diagram" src="/static/img/cie1931xy.svg" alt="Diagrama de cromaticidade CIE 1931 xy">
+                    <span id="cie-marker" class="cie-marker" role="img" aria-label="Posição cromática medida" hidden></span>
+                </div>
+                <figcaption id="cie-readout" aria-live="polite">x = —, y = —, CCT = —</figcaption>
+            </figure>
+            <div class="card">
+                <h2>Leitura cromática</h2>
+                <dl class="readout">
+                    <div><dt>x</dt><dd id="cie-x">—</dd></div>
+                    <div><dt>y</dt><dd id="cie-y">—</dd></div>
+                    <div><dt>CCT</dt><dd id="cie-cct">—</dd></div>
+                    <div><dt>Estado CCT</dt><dd id="cie-cct-status">—</dd></div>
+                    <div><dt>Lux</dt><dd id="cie-lux">—</dd></div>
+                </dl>
+                <p id="cie-note" class="muted">Aproximação baseada na matriz de calibração do dispositivo.</p>
+            </div>
+        </div>
+    </section>
 
-const alertChart = new Chart(document.getElementById('alertChart'), {
-    type: 'line',
-    data: {
-        labels: labels,
-        datasets: [{ label: 'Alertas', data: alertData, borderColor: 'orange' }]
-    }
-});
+    <section id="view-flicker" class="view-panel" role="tabpanel" aria-label="Flicker" hidden>
+        <div class="metric-grid">
+            <article class="metric">
+                <span class="metric-label">fd</span>
+                <strong id="flicker-fd">—</strong>
+            </article>
+            <article class="metric">
+                <span class="metric-label">Estado</span>
+                <strong id="flicker-status">—</strong>
+            </article>
+            <article class="metric">
+                <span class="metric-label">Amostras</span>
+                <strong id="flicker-count">0</strong>
+            </article>
+            <article class="metric">
+                <span class="metric-label">Última</span>
+                <strong id="flicker-age">—</strong>
+            </article>
+        </div>
 
-async function fetchData() {
-    try {
-        const res = await fetch('/data');
-        const data = await res.json();
+        <figure class="chart-card">
+            <figcaption>Série temporal do canal fd (60 s)</figcaption>
+            <svg id="flicker-chart" class="chart" viewBox="0 0 620 260" role="img" aria-labelledby="flicker-title flicker-desc">
+                <title id="flicker-title">Série temporal de flicker</title>
+                <desc id="flicker-desc">Valores do canal fd ao longo dos últimos 60 segundos.</desc>
+            </svg>
+        </figure>
 
-        const time = new Date().toLocaleTimeString();
-
-        labels.push(time);
-        tempData.push(data.temperature);
-        humData.push(data.humidity);
-        alertData.push(data.alerts);
-
-        if (labels.length > 10) {
-            labels.shift();
-            tempData.shift();
-            humData.shift();
-            alertData.shift();
-        }
-
-        tempChart.update();
-        humChart.update();
-        alertChart.update();
-
-        document.getElementById('status').innerText = "✅ Sincronizado";
-
-    } catch (err) {
-        document.getElementById('status').innerText = "❌ Erro de conexão";
-    }
-}
-
-// Polling (substitui WebSocket no Microdot)
-setInterval(fetchData, 3000);
-</script>
-
-</body>
-</html>
+        <div class="card">
+            <h2>Estado</h2>
+            <p id="flicker-note" class="muted">O valor fd é uma contagem bruta; não representa Hz.</p>
+        </div>
+    </section>
+</main>
+{% include '_tail.html' %}

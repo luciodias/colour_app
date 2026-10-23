@@ -1,0 +1,253 @@
+.dashboard-page {
+    padding-top: 1.5rem;
+}
+
+.view-tabs {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1.2rem;
+    padding: 0.35rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.view-tabs a {
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.view-tabs a[aria-selected="true"] {
+    background: var(--primary);
+    color: #fff;
+}
+
+.view-panel[hidden] {
+    display: none;
+}
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.metric {
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+
+.metric-label {
+    display: block;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.metric strong {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 1.45rem;
+    line-height: 1.2;
+}
+
+.chart-card {
+    margin: 0 0 1rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+
+.chart-card figcaption {
+    margin-bottom: 0.5rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.chart {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.chart text {
+    fill: var(--muted);
+    font-size: 11px;
+}
+
+.chart .bar {
+    fill: var(--primary);
+    opacity: 0.82;
+}
+
+.chart .bar.clear {
+    fill: #0ea5e9;
+}
+
+.chart .bar.nir {
+    fill: #ef4444;
+}
+
+.chart .grid {
+    stroke: var(--border);
+    stroke-width: 1;
+}
+
+.chart .series {
+    fill: none;
+    stroke: var(--primary);
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.chart .series-point {
+    fill: var(--primary);
+}
+
+.chart .threshold {
+    stroke: var(--warning);
+    stroke-dasharray: 6 5;
+    stroke-width: 1.5;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+.channel-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.channel-table th,
+.channel-table td {
+    padding: 0.45rem 0.35rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+}
+
+.channel-table th {
+    color: var(--muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.channel-table td:last-child,
+.channel-table th:last-child {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.cie-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.cie-figure {
+    margin: 0;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+
+.cie-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.cie-diagram {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.cie-marker {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 1px #000, 0 0 10px rgba(0, 0, 0, 0.45);
+    transform: translate(-50%, -50%);
+}
+
+.cie-marker[hidden] {
+    display: none;
+}
+
+.cie-figure figcaption {
+    margin-top: 0.6rem;
+    color: var(--muted);
+    text-align: center;
+}
+
+.readout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 0.75rem;
+    margin: 0 0 0.8rem;
+}
+
+.readout div {
+    padding: 0.7rem;
+    border-radius: 10px;
+    background: var(--light);
+}
+
+.readout dt {
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.readout dd {
+    margin: 0.15rem 0 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.metric strong[data-state="quiet"] {
+    color: var(--success);
+}
+
+.metric strong[data-state="detected"] {
+    color: var(--warning);
+}
+
+.metric strong[data-state="strong"] {
+    color: var(--danger);
+}
+
+.metric strong[data-state="unavailable"] {
+    color: var(--muted);
+}
+
+@media (max-width: 760px) {
+    .cie-layout {
+        grid-template-columns: 1fr;
+    }
+}

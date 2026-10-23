@@ -63,9 +63,8 @@ config: dict = load_config()
 
 # ROTAS
 @app.route("/")
-async def index(request) -> Response:
-    # return Template('index.html').generate(name='Name 2')
-    return send_file(f"{cwd}templates/index.html")
+async def index(request) -> str:
+    return Template("index.html").render(title="Colour App", page="home", active="home")
 
 
 @app.route("/favicon.ico")
@@ -145,7 +144,7 @@ async def ws(request, ws):
 
 @app.route("/dashboard")
 async def dashboard(request) -> str:
-    return send_file(f"{cwd}templates/dashboard.html")
+    return Template("dashboard.html").render(title="Dashboard IoT", page="dashboard", active="dashboard")
 
 
 @app.route("/config", methods=["GET", "POST"])
@@ -165,7 +164,7 @@ async def config_page(request) -> Any:
             return Response(str(e), 400)
 
     # GET
-    return send_file(f"{cwd}templates/config.html")
+    return Template("config.html").render(title="Configurações", page="config", active="config")
 
 
 @app.route("/config-data")
