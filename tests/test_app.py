@@ -217,7 +217,7 @@ async def test_pwa_sw_root(client):
     assert res.headers["Content-Type"] == "application/javascript"
     assert res.headers["Cache-Control"] == "no-cache"
     assert res.headers["Service-Worker-Allowed"] == "/"
-    assert b"site-v1" in res.body
+    assert b"colour-app-v2" in res.body
 
 
 async def test_pwa_sw_still_available_under_static(client):

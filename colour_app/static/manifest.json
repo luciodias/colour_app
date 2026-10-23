@@ -1,20 +1,31 @@
 {
-  "name": "Modern Tech PWA",
-  "short_name": "TechApp",
-  "start_url": "/",
+  "name": "Colour App",
+  "short_name": "Colour",
+  "description": "Monitorização espectral de cor com sensor AS7341",
+  "lang": "pt-PT",
+  "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#f5f6fa",
   "theme_color": "#6200ee",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/static/img/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "/static/img/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/img/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

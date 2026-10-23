@@ -38,23 +38,25 @@ describe('pwa_sw.js', () => {
       self.dispatchEvent(event)
       await installDone
 
-      expect(caches.open).toHaveBeenCalledWith('site-v1')
+      expect(caches.open).toHaveBeenCalledWith('colour-app-v2')
       expect(cacheMock.addAll).toHaveBeenCalledOnce()
       const assets = cacheMock.addAll.mock.calls[0][0]
       expect(assets).toContain('/')
+      expect(assets).toContain('/dashboard')
+      expect(assets).toContain('/config')
       expect(assets).toContain('/static/css/styles.css')
-      expect(assets).toContain('/static/css/pwa.css')
-      expect(assets).toContain('/static/css/svg.css')
-      expect(assets).toContain('/static/js/pwa.js')
+      expect(assets).toContain('/static/css/dashboard.css')
+      expect(assets).toContain('/static/js/main.js')
+      expect(assets).toContain('/static/js/dashboard.js')
+      expect(assets).toContain('/static/js/views/cie.js')
       expect(assets).toContain('/static/manifest.json')
-      expect(assets).toContain('/static/img/prisma.svg')
-      expect(assets).toContain('/static/chart.html')
-      expect(assets).toContain('/static/arco_iris.html')
+      expect(assets).toContain('/static/img/icon-192.png')
+      expect(assets).toContain('/static/img/icon-512.png')
     })
   })
 
   describe('fetch event', () => {
-    const BASE = 'http://localhost'
+    const BASE = self.location.origin
 
     it('serves from cache when available', async () => {
       const cachedResponse = new Response('cached')
@@ -85,7 +87,7 @@ describe('pwa_sw.js', () => {
 
       const response = await respondWithArg
       expect(await response.text()).toBe('fresh')
-      expect(caches.open).toHaveBeenCalledWith('site-v1')
+      expect(caches.open).toHaveBeenCalledWith('colour-app-v2')
       expect(cacheMock.put).toHaveBeenCalledWith(request, expect.any(Response))
     })
   })

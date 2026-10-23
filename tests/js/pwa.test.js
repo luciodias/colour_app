@@ -34,7 +34,7 @@ describe('pwa.js', () => {
     const register = navigator.serviceWorker.register
     register.mockClear()
     window.dispatchEvent(new Event('load'))
-    expect(register).toHaveBeenCalledWith('/static/js/pwa_sw.js')
+    expect(register).toHaveBeenCalledWith('/pwa_sw.js')
   })
 
   it('logs success on SW registration', async () => {
