@@ -4,13 +4,14 @@ import json
 import os
 import ssl
 import sys
+from typing import Any
 
 from libs.microdot import Microdot, Response, send_file
 from libs.microdot.utemplate import Template
 from libs.microdot.websocket import with_websocket
-from typing import Any
-if sys.implementation.name == 'micropython':
-    from libs.tools.typing import Any  # noqa
+
+if sys.implementation.name == "micropython":
+    from libs.tools.typing import Any
 
 color_sensor = None
 try:
@@ -85,6 +86,7 @@ def static(request, path):
         print(path)
         return "Not found", 404
 
+
 @app.route("/measure")
 async def measure(request) -> Response:
     if color_sensor:
@@ -93,7 +95,8 @@ async def measure(request) -> Response:
         return Response(m, 200)
     return Response("503", 503)
 
-@app.route('/ws')
+
+@app.route("/ws")
 @with_websocket
 async def ws(request, ws):
     try:
@@ -101,7 +104,7 @@ async def ws(request, ws):
             message = await ws.receive()
             await ws.send(message)
     except asyncio.CancelledError:
-        print('Client disconnected!')
+        print("Client disconnected!")
 
 
 @app.route("/dashboard")
@@ -110,9 +113,7 @@ async def dashboard(request) -> str:
 
 
 @app.route("/config", methods=["GET", "POST"])
-async def config_page(request) -> dict | Response:
-    global config
-
+async def config_page(request) -> Any:
     if request.method == "POST":
         try:
             data = request.json
@@ -147,20 +148,20 @@ async def reset_config(request) -> dict:
 # =========================
 # CORS (básico)
 # =========================
-    # @app.after_request
-    # async def after_request(request, response) -> Any:
-    #     response.headers["Access-Control-Allow-Origin"] = "*"
-    #     return response
+# @app.after_request
+# async def after_request(request, response) -> Any:
+#     response.headers["Access-Control-Allow-Origin"] = "*"
+#     return response
 async def main():
     if color_sensor:
         await color_sensor.init()
     # server = asyncio.create_task(app.start_server(debug=True, port=80))
-    #await server
+    # await server
     ext = "pem" if sys.implementation.name == "micropython" else "der"
     sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     print(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
     sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
-    if sys.implementation.name == 'micropython':
+    if sys.implementation.name == "micropython":
         sserver = asyncio.create_task(app.start_server(debug=True, port=443, ssl=sslctx))
     else:
         sserver = asyncio.create_task(app.start_server(debug=True, port=4443, ssl=sslctx))
@@ -171,4 +172,4 @@ async def main():
 # RUN
 # =========================
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

@@ -10,7 +10,7 @@ from colour_app.app import main
 async def test_index(client):
     res = await client.get("/")
     assert res.status_code == 200
-    #assert b"Modern PWA Template" in res.body
+    # assert b"Modern PWA Template" in res.body
 
 
 async def test_favicon(client):
@@ -20,9 +20,7 @@ async def test_favicon(client):
 
 async def test_save_config(client, monkeypatch):
     res = await client.get("/")
-    monkeypatch.setattr(
-        os.path, "exists", lambda path: False
-    )  # Simulate file not exists
+    monkeypatch.setattr(os.path, "exists", lambda path: False)  # Simulate file not exists
     assert res.status_code == 200
 
 
@@ -35,13 +33,16 @@ async def test_static_nok(client):
     res = await client.get("/static/..")
     assert res.status_code == 404
 
+
 async def test_static_missing(client):
     res = await client.get("/static/missing")
     assert res.status_code == 404
 
+
 async def test_measure(client):
     res = await client.get("/measure")
     assert res.status_code == 503
+
 
 async def test_dashboard(client):
     res = await client.get("/dashboard")
@@ -85,9 +86,17 @@ async def test_reset_config(client):
 async def test_measure_with_mock_sensor(client):
     mock_sensor = AsyncMock()
     mock_sensor.get_measurements.return_value = {
-        "f1": 100, "f2": 200, "f3": 300, "f4": 400,
-        "f5": 500, "f6": 600, "f7": 700, "f8": 800,
-        "clr": 900, "nir": 1000, "fd": 1,
+        "f1": 100,
+        "f2": 200,
+        "f3": 300,
+        "f4": 400,
+        "f5": 500,
+        "f6": 600,
+        "f7": 700,
+        "f8": 800,
+        "clr": 900,
+        "nir": 1000,
+        "fd": 1,
     }
     with patch.object(app, "color_sensor", mock_sensor):
         res = await client.get("/measure")

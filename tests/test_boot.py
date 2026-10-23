@@ -23,8 +23,9 @@ MODULES = {
 
 with patch.dict(sys.modules, MODULES):
     import importlib
-    from colour_app import env
-    from colour_app import boot
+
+    from colour_app import boot, env
+
     importlib.reload(boot)
     from colour_app.boot import setup_interfaces
 
@@ -48,7 +49,7 @@ def reset_mocks():
 def _make_scan_results(ssids):
     results = []
     for ssid in ssids:
-        name = list(ssid.keys())[0]
+        name = next(iter(ssid))
         rssi = ssid[name]
         results.append((name.encode(), b"", 1, rssi, 0, 0))
     return results
@@ -76,11 +77,13 @@ def test_no_known_networks():
 
 
 def test_connects_to_best_network():
-    results = _make_scan_results([
-        {"VIVOFIBRA-WIFI6-B151": -50},
-        {"OtherNet": -60},
-    ])
-    ap_if, sta_if = _setup_mocks(results)
+    results = _make_scan_results(
+        [
+            {"VIVOFIBRA-WIFI6-B151": -50},
+            {"OtherNet": -60},
+        ]
+    )
+    _, sta_if = _setup_mocks(results)
     sta_if.isconnected.return_value = True
 
     setup_interfaces()
@@ -93,10 +96,12 @@ def test_connects_to_best_network():
 
 
 def test_connection_timeout():
-    results = _make_scan_results([
-        {"VIVOFIBRA-WIFI6-B151": -50},
-    ])
-    ap_if, sta_if = _setup_mocks(results)
+    results = _make_scan_results(
+        [
+            {"VIVOFIBRA-WIFI6-B151": -50},
+        ]
+    )
+    _, sta_if = _setup_mocks(results)
     sta_if.isconnected.return_value = False
 
     setup_interfaces()
@@ -107,12 +112,14 @@ def test_connection_timeout():
 
 
 def test_chooses_strongest_signal():
-    results = _make_scan_results([
-        {"VIVOFIBRA-WIFI6-B151": -80},
-        {"FATECRL": -40},
-        {"Seletric02": -70},
-    ])
-    ap_if, sta_if = _setup_mocks(results)
+    results = _make_scan_results(
+        [
+            {"VIVOFIBRA-WIFI6-B151": -80},
+            {"FATECRL": -40},
+            {"Seletric02": -70},
+        ]
+    )
+    _, sta_if = _setup_mocks(results)
     sta_if.isconnected.return_value = True
 
     setup_interfaces()

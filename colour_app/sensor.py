@@ -10,8 +10,10 @@ except ImportError as e:
 try:
     from micropython import const  # pyright: ignore[reportMissingImports]
 except ImportError:
+
     def const(c):
         return c
+
 
 class Sensor(AS7341):
     """Classe SENSOR que herda de AS7341 com método para retornar medições formatadas"""
@@ -31,7 +33,7 @@ class Sensor(AS7341):
         await self.set_again(4)
         return self
 
-    async def start_measure(self, selection: str|None = None) -> None:
+    async def start_measure(self, selection=None) -> None:
         await super().start_measure(selection)
 
     async def get_measurements(self):

@@ -1,16 +1,18 @@
 import subprocess
 from pathlib import Path
+
 from rich.console import Console
 
 # Initialize rich console for colored output
 console = Console()
+
 
 def build_project():
     """
     Finds all Python files and compiles them to .mpy format using mpy-cross,
     outputting status updates using rich library.
     """
-    console.print("Starting build process...",style="yellow")
+    console.print("Starting build process...", style="yellow")
 
     # Find all python files recursively starting from the current directory
     # We iterate over all files matching *.py
@@ -25,31 +27,25 @@ def build_project():
         mpy_file = build_dir / f"{file_name_base}.mpy"
 
         # 3. Check if the file already exists (equivalent to [ ! -f "$mpy" ] )
-        if mpy_file.exists():
+        if mpy_file.exists() and mpy_file.stat().st_mtime > py_file.stat().st_mtime:
             # cheque se o arquivo mpy e' mais aintigo que o arquivo py
-            if mpy_file.stat().st_mtime > py_file.stat().st_mtime:
-                console.print(f"Skipping {py_file.name}: mpy icleas newer than py.",style="red")
-                continue
+            console.print(f"Skipping {py_file.name}: mpy icleas newer than py.", style="red")
+            continue
 
         console.print(f"[blue]Processing:[/blue] {relative_path}")
-        
+
         # 4. Create directory if it doesn't exist (equivalent to mkdir -p $dir)
         build_dir.mkdir(parents=True, exist_ok=True)
 
         # 5. Run the compilation command
         command = ["uv", "run", "--group", "esp", "mpy-cross", str(py_file), "-o", str(mpy_file)]
-        
+
         console.print(f"  [yellow]-> Running:[/yellow] {' '.join(command)}")
-        
+
         try:
             # Run the subprocess, capturing output or printing it directly
-            result = subprocess.run(
-                command, 
-                check=True, 
-                capture_output=True, 
-                text=True
-            )
-            
+            result = subprocess.run(command, check=True, capture_output=True, text=True)
+
             console.print(f"[green]SUCCESS:[/green] Compiled and saved to [cyan]{mpy_file}[/cyan]")
             console.print(result)
             # If mpy-cross prints something useful, we might log it, but for simplicity, we assume success if no error is raised.
@@ -58,7 +54,9 @@ def build_project():
             console.print(f"[red]ERROR:[/red] Failed to compile {py_file}.")
             console.print(f"  [red]Stderr:[/red]\n{e.stderr}")
         except FileNotFoundError:
-            console.print("[red]FATAL ERROR:[/red] 'uv' or 'mpy-cross' command not found. Ensure uv and mpy-cross are installed and in PATH.")
+            console.print(
+                "[red]FATAL ERROR:[/red] 'uv' or 'mpy-cross' command not found. Ensure uv and mpy-cross are installed and in PATH."
+            )
             break
 
     console.print("\n[green]Build process finished.[/green]")

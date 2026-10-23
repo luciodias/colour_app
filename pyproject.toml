@@ -11,18 +11,8 @@ dependencies = [
     #"microdot (>=2.6.0,<3.0.0)"
 ]
 
-[tool.poetry]
-packages = [
-    { include = "colour_app"},
-    { include = "libs", from = "colour_app" },
-    { include = "utemplate", from = "colour_app/libs" },
-#    { include = "tools", from = "colour_app" },
-#    { include = "as7341", from = "colour_app" },
-]
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+package = false
 
 [dependency-groups]
 dev = [
@@ -70,11 +60,13 @@ format = 'ruff format'
 #pre_test = 'task lint'
 test = 'pytest -s -x --cov=colour_app -vv'
 post_test = 'coverage html'
+typecheck = 'ty check'
 build = 'uv run python tools/build.py'
 
 [tool.ruff]
 line-length = 140
 target-version = "py39"
+extend-exclude = ["colour_app/libs", "tools/webrepl.py"]
 builtins = ["ptr", "ptr8", "ptr16", "ptr32", "uint", "micropython", "const"]
 
 [tool.ruff.lint]
@@ -95,5 +87,22 @@ ignore = [
     "BLE001",   # Checks for except clauses that catch all exceptions.
 ]
 
-[tool.ty.rules]
-unresolved-import = "ignore"
+[tool.ty.environment]
+root = [".", "colour_app"]
+
+[tool.ty.analysis]
+allowed-unresolved-imports = [
+    "env",
+    "esp",
+    "machine",
+    "micropython",
+    "network",
+    "requests",
+    "usocket",
+    "utime",
+    "uwebsocket",
+    "webrepl",
+]
+
+[tool.ty.src]
+exclude = ["colour_app/libs"]

@@ -9,7 +9,9 @@ machine.Pin = MagicMock(return_value=MagicMock())
 
 with patch.dict(sys.modules, {"machine": machine}):
     import importlib
+
     from colour_app import sensor
+
     importlib.reload(sensor)
 
     from colour_app.sensor import Sensor
@@ -93,4 +95,4 @@ async def test_get_measurements_not_connected():
 async def test_start_measure_smux_string():
     sensor_inst = _make_sensor()
     await sensor_inst.start_measure("F1F4CN")
-    sensor.AS7341.channel_select.assert_called_once_with("F1F4CN")
+    sensor.AS7341.channel_select.assert_called_once_with("F1F4CN")  # ty: ignore[unresolved-attribute]

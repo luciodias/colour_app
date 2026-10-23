@@ -127,8 +127,8 @@ def do_repl(ws):
     class ConsolePosix:
         def __init__(self):
             self.infd = sys.stdin.fileno()
-            self.infile = sys.stdin.buffer.raw
-            self.outfile = sys.stdout.buffer.raw
+            self.infile = sys.stdin.buffer.raw  # ty: ignore[unresolved-attribute]
+            self.outfile = sys.stdout.buffer.raw  # ty: ignore[unresolved-attribute]
             self.orig_attr = termios.tcgetattr(self.infd)
 
         def enter(self):

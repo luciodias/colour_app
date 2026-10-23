@@ -41,13 +41,13 @@ Aplicação IoT para monitoramento espectral de cores usando sensor **AS7341** e
 ### Dependências
 
 ```bash
-poetry install
+uv sync
 ```
 
 ### Desenvolvimento (CPython)
 
 ```bash
-poetry run python colour_app/app.py
+uv run python colour_app/app.py
 ```
 
 Servidor HTTPS inicia em `https://127.0.0.1:4443/`.
@@ -56,7 +56,7 @@ Servidor HTTPS inicia em `https://127.0.0.1:4443/`.
 
 1. Compilar para bytecode:
    ```bash
-   poetry run task build
+   uv run --group esp task build
    ```
 2. Enviar conteúdo da pasta `build/` para o ESP32 via mpremote ou WebREPL.
 
@@ -76,21 +76,25 @@ Servidor HTTPS inicia em `https://127.0.0.1:4443/`.
 ## Testes
 
 ```bash
-poetry run task test
+uv run task test
+uv run task typecheck
+npm test
 ```
 
 ## Build (MicroPython)
 
 ```bash
-poetry run task build
+uv run --group esp task build
 ```
 
 Compila todos os `.py` para `.mpy` usando `mpy-cross`, ignorando arquivos já atualizados.
 
 ## Tooling
 
-- **Poetry** — dependências e ambiente
+- **uv** — dependências e ambiente
 - **pytest** + **pytest-cov** — testes com cobertura
 - **ruff** — lint e formatação
+- **ty** — type checking e language server
+- **vitest** — testes JavaScript
 - **taskipy** — automação de tarefas
 - **esptool / mpremote / mpy-cross** — toolchain ESP32

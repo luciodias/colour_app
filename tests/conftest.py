@@ -5,8 +5,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "colour_app"))
 
-from colour_app.libs.microdot.test_client import TestClient
 from colour_app import app
+from colour_app.libs.microdot.test_client import TestClient
 
 
 @pytest.fixture
