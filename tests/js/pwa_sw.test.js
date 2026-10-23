@@ -52,6 +52,7 @@ describe('pwa_sw.js', () => {
       expect(assets).toContain('/static/manifest.json')
       expect(assets).toContain('/static/img/icon-192.png')
       expect(assets).toContain('/static/img/icon-512.png')
+      expect(assets).toContain('/static/img/cie1931xy.svg')
     })
   })
 

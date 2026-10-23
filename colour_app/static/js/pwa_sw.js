@@ -22,6 +22,7 @@ const ASSETS = [
     '/static/img/icon-192.png',
     '/static/img/icon-512.png',
     '/static/img/icon-maskable-512.png',
+    '/static/img/cie1931xy.svg',
 ];
 
 const NETWORK_ONLY = ['/ws', '/measure', '/config-data'];
