@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 import ssl
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -146,3 +147,79 @@ async def test_main_server_start_cpython():
 async def test_websocket_upgrade_required(client):
     res = await client.get("/ws")
     assert res.status_code == 400
+
+
+async def _ws_exchange(client, messages, timeout=2):
+    replies = []
+
+    async def gen():
+        for message in messages:
+            reply = yield message
+            replies.append(reply)
+
+    await asyncio.wait_for(client.websocket("/ws", gen), timeout)
+    return replies
+
+
+async def test_ws_echo(client):
+    replies = await _ws_exchange(client, ["hello"])
+    assert replies == ["hello"]
+
+
+async def test_ws_invalid_json_is_echoed(client):
+    replies = await _ws_exchange(client, ["not-json"])
+    assert replies == ["not-json"]
+
+
+async def test_ws_measure_without_sensor(client):
+    with patch.object(app, "color_sensor", None):
+        replies = await _ws_exchange(client, [json.dumps({"cmd": "measure"})])
+
+    assert json.loads(replies[0]) == {"type": "error", "error": "sensor unavailable"}
+
+
+async def test_ws_measure_with_mock_sensor(client):
+    mock_sensor = AsyncMock()
+    mock_sensor.get_measurements.return_value = {"f1": 100, "fd": 1}
+
+    with patch.object(app, "color_sensor", mock_sensor):
+        replies = await _ws_exchange(client, [json.dumps({"cmd": "measure"})])
+
+    payload = json.loads(replies[0])
+    assert payload["type"] == "measurement"
+    assert payload["data"] == {"f1": 100, "fd": 1}
+    mock_sensor.get_measurements.assert_awaited_once()
+
+
+async def test_ws_measure_sensor_error(client):
+    mock_sensor = AsyncMock()
+    mock_sensor.get_measurements.return_value = {"error": "Sensor não conectado"}
+
+    with patch.object(app, "color_sensor", mock_sensor):
+        replies = await _ws_exchange(client, [json.dumps({"cmd": "measure"})])
+
+    assert json.loads(replies[0]) == {"type": "error", "error": "Sensor não conectado"}
+
+
+async def test_ws_measure_sensor_exception(client):
+    mock_sensor = AsyncMock()
+    mock_sensor.get_measurements.side_effect = RuntimeError("i2c failure")
+
+    with patch.object(app, "color_sensor", mock_sensor):
+        replies = await _ws_exchange(client, [json.dumps({"cmd": "measure"})])
+
+    assert json.loads(replies[0]) == {"type": "error", "error": "i2c failure"}
+
+
+async def test_pwa_sw_root(client):
+    res = await client.get("/pwa_sw.js")
+    assert res.status_code == 200
+    assert res.headers["Content-Type"] == "application/javascript"
+    assert res.headers["Cache-Control"] == "no-cache"
+    assert res.headers["Service-Worker-Allowed"] == "/"
+    assert b"site-v1" in res.body
+
+
+async def test_pwa_sw_still_available_under_static(client):
+    res = await client.get("/static/js/pwa_sw.js")
+    assert res.status_code == 200

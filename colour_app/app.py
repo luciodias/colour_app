@@ -74,6 +74,18 @@ async def favicon(request) -> Response:
     return send_file(f"{cwd}static/img/favicon.ico")
 
 
+@app.route("/pwa_sw.js")
+async def pwa_service_worker(request) -> Response:
+    res = send_file(
+        f"{cwd}static/js/pwa_sw.js",
+        content_type="application/javascript",
+        max_age=0,
+    )
+    res.headers["Cache-Control"] = "no-cache"
+    res.headers["Service-Worker-Allowed"] = "/"
+    return res
+
+
 # Static route
 @app.route("/static/<path:path>")
 def static(request, path):
@@ -102,7 +114,31 @@ async def ws(request, ws):
     try:
         while True:
             message = await ws.receive()
-            await ws.send(message)
+
+            command = None
+            if isinstance(message, str):
+                try:
+                    command = json.loads(message)
+                except (TypeError, ValueError):
+                    command = None
+
+            if isinstance(command, dict) and command.get("cmd") == "measure":
+                if color_sensor is None:
+                    await ws.send(json.dumps({"type": "error", "error": "sensor unavailable"}))
+                    continue
+
+                try:
+                    data = await color_sensor.get_measurements()
+                except Exception as exc:
+                    await ws.send(json.dumps({"type": "error", "error": str(exc)}))
+                    continue
+
+                if isinstance(data, dict) and data.get("error"):
+                    await ws.send(json.dumps({"type": "error", "error": data["error"]}))
+                else:
+                    await ws.send(json.dumps({"type": "measurement", "data": data}))
+            else:
+                await ws.send(message)
     except asyncio.CancelledError:
         print("Client disconnected!")
 
