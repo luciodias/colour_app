@@ -3,6 +3,8 @@ env.py
 graphify-out/
 config.json
 colour_app/templates/*_html.py
+*.bin
+*.uf2
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
