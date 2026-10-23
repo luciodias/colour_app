@@ -29,6 +29,10 @@ app = Microdot()
 Response.default_content_type = "text/html"
 
 cwd = "colour_app/" if "colour_app" in os.listdir() else ""
+if cwd:
+    project_root = os.path.abspath(".")
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
 Template.initialize(f"{cwd}templates")
 
 CONFIG_FILE = "config.json"

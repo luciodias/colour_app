@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from pathlib import Path
 
 from rich.console import Console
@@ -7,12 +8,27 @@ from rich.console import Console
 console = Console()
 
 
+def compile_templates():
+    """Compile uTemplate sources to importable Python modules before mpy-cross."""
+    project_root = Path.cwd()
+    sys.path.insert(0, str(project_root))
+    sys.path.insert(0, str(project_root / "colour_app"))
+    from libs.microdot.utemplate import Template
+
+    template_dir = "colour_app/templates"
+    Template.initialize(template_dir)
+    for name in ("index.html", "dashboard.html", "config.html"):
+        console.print(f"[blue]Compiling template:[/blue] {name}")
+        Template(name)
+
+
 def build_project():
     """
     Finds all Python files and compiles them to .mpy format using mpy-cross,
     outputting status updates using rich library.
     """
     console.print("Starting build process...", style="yellow")
+    compile_templates()
 
     # Find all python files recursively starting from the current directory
     # We iterate over all files matching *.py
@@ -20,7 +36,7 @@ def build_project():
         # Skip the build script itself if it's in the directory being scanned
         relative_path = py_file.relative_to(Path("."))
         dir_name = relative_path.parent
-        if relative_path.parts[0] in ("tools", ".venv"):
+        if relative_path.parts[0] in ("tools", "tests", "build", ".venv"):
             continue
         build_dir = Path("build") / dir_name
         file_name_base = py_file.stem

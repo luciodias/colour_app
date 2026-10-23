@@ -43,4 +43,6 @@ uv run python colour_app/app.py   # dev server on https://127.0.0.1:4443/
 - **`env.py` is gitignored** — must NOT be created or committed. Contains `AP_CONFIG`, `HOST`, `KNOWN_NETWORKS`, `NOTIFICATION_API` used by `boot.py`
 - **No `pre_test` hook** — lint does not auto-run before tests
 - **Build skips cached `.mpy`** if source is older than compiled output
+- **uTemplate compiles to `templates/*_html.py`** (gitignored); `task build` precompiles them before `mpy-cross`
+- **Service worker is served from `/pwa_sw.js`** so its scope covers the whole app; static fallback remains available
 - **Tests run from project root** — `config.json` is created/read in CWD during tests

@@ -26,8 +26,11 @@ Aplicação IoT para monitoramento espectral de cores usando sensor **AS7341** e
 │   │   ├── microdot/       # Micro web framework
 │   │   ├── utemplate/      # Template engine
 │   │   └── tools/          # Utilitários (typing)
-│   ├── templates/          # HTML templates (dashboard, config, pwa)
-│   ├── static/             # Assets (CSS, JS, service worker, ícones)
+│   ├── templates/          # HTML templates e partials uTemplate
+│   ├── static/
+│   │   ├── css/            # Design system e estilos do dashboard
+│   │   ├── js/             # ES modules, views e service worker
+│   │   └── img/            # Ícones PWA e diagrama CIE 1931
 │   └── certs/              # Certificados TLS (cert.pem, key.pem)
 ├── tests/                  # Testes com pytest
 ├── tools/
@@ -64,12 +67,14 @@ Servidor HTTPS inicia em `https://127.0.0.1:4443/`.
 
 | Rota | Método | Descrição |
 |---|---|---|
-| `/` | GET | PWA principal |
-| `/dashboard` | GET | Dashboard de monitoramento |
+| `/` | GET | Página inicial |
+| `/dashboard` | GET | Dashboard (espectro, CIE 1931 e flicker) |
 | `/config` | GET/POST | Página e API de configuração |
 | `/config-data` | GET | Retorna configurações atuais (JSON) |
 | `/measure` | GET | Medições do sensor AS7341 (JSON) |
-| `/ws` | WebSocket | Comunicação bidirecional em tempo real |
+| `/ws` | WebSocket | Medições em tempo real; envie `{"cmd":"measure"}` |
+| `/pwa_sw.js` | GET | Service worker com scope na raiz |
+| `/favicon.ico` | GET | Ícone do site |
 | `/reset-config` | POST | Restaura configuração padrão |
 | `/static/*` | GET | Arquivos estáticos |
 
@@ -87,7 +92,7 @@ npm test
 uv run --group esp task build
 ```
 
-Compila todos os `.py` para `.mpy` usando `mpy-cross`, ignorando arquivos já atualizados.
+Pré-compila os templates uTemplate e todos os `.py` para `.mpy` usando `mpy-cross`, ignorando arquivos já atualizados. Os templates gerados (`templates/*_html.py`) são artefactos de build e não são versionados.
 
 ## Tooling
 

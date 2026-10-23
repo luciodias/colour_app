@@ -336,7 +336,7 @@ code {
     background: var(--warning);
 }
 
-.status-baude[data-state="error"]::before,
+.status-badge[data-state="error"]::before,
 .status-badge[data-state="offline"]::before {
     background: var(--danger);
 }

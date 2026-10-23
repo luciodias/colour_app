@@ -94,6 +94,7 @@ root = [".", "colour_app"]
 allowed-unresolved-imports = [
     "env",
     "esp",
+    "libs",
     "machine",
     "micropython",
     "network",

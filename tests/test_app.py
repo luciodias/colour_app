@@ -11,7 +11,8 @@ from colour_app.app import main
 async def test_index(client):
     res = await client.get("/")
     assert res.status_code == 200
-    # assert b"Modern PWA Template" in res.body
+    assert b"Colour App" in res.body
+    assert b"/static/js/main.js" in res.body
 
 
 async def test_favicon(client):
@@ -223,3 +224,17 @@ async def test_pwa_sw_root(client):
 async def test_pwa_sw_still_available_under_static(client):
     res = await client.get("/static/js/pwa_sw.js")
     assert res.status_code == 200
+
+
+async def test_manifest(client):
+    res = await client.get("/static/manifest.json")
+    assert res.status_code == 200
+    assert res.json["start_url"] == "/dashboard"
+    assert res.json["scope"] == "/"
+    assert len(res.json["icons"]) == 3
+
+
+async def test_cie_diagram_asset(client):
+    res = await client.get("/static/img/cie1931xy.svg")
+    assert res.status_code == 200
+    assert res.headers["Content-Type"].startswith("image/svg+xml")
