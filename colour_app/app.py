@@ -10,8 +10,12 @@ from libs.microdot import Microdot, Response, send_file
 from libs.microdot.utemplate import Template
 from libs.microdot.websocket import with_websocket
 
-if sys.implementation.name == "micropython":
-    from libs.tools.typing import Any
+try:
+    from typing import Any
+except ImportError as e:
+    print(e)
+    if sys.implementation.name == "micropython":
+        from libs.tools.typing import Any
 
 color_sensor = None
 try:
