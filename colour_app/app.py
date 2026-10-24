@@ -198,18 +198,15 @@ async def reset_config(request) -> dict:
 async def main():
     if color_sensor:
         await color_sensor.init()
-    # server = asyncio.create_task(app.start_server(debug=True, port=80))
-    # await server
-    ext = "pem" if sys.implementation.name == "micropython" else "der"
+    ext = "der" if sys.implementation.name == "micropython" else "pem"
+    port = 443 if sys.platform == "esp32" else 4443
     sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     print(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
     sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
-    if sys.implementation.name == "micropython":
-        sserver = asyncio.create_task(app.start_server(debug=True, port=443, ssl=sslctx))
-    else:
-        sserver = asyncio.create_task(app.start_server(debug=True, port=4443, ssl=sslctx))
+    sserver = asyncio.create_task(app.start_server(debug=True, port=port, ssl=sslctx))
     await sserver
-
+    # server = asyncio.create_task(app.start_server(debug=True, port=80))
+    # await server
 
 # =========================
 # RUN
