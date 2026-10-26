@@ -199,14 +199,18 @@ async def main():
     if color_sensor:
         await color_sensor.init()
     ext = "der" if sys.implementation.name == "micropython" else "pem"
-    port = 443 if sys.platform == "esp32" else 4443
+    S_port = 443 if sys.platform == "esp32" else 4443
+    C_port = 80 if sys.platform == "esp32" else 8080
     sslctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     print(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
-    sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
-    sserver = asyncio.create_task(app.start_server(debug=True, port=port, ssl=sslctx))
-    await sserver
-    # server = asyncio.create_task(app.start_server(debug=True, port=80))
-    # await server
+    try:
+        sslctx.load_cert_chain(f"{cwd}certs/cert.{ext}", f"{cwd}certs/key.{ext}")
+        sserver = asyncio.create_task(app.start_server(debug=True, port=S_port, ssl=sslctx))
+        await sserver
+    except FileNotFoundError as e:
+        print(e)
+        server = asyncio.create_task(app.start_server(debug=True, port=C_port))
+        await server
 
 
 # =========================
