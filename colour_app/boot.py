@@ -4,12 +4,12 @@ import network  # pyright: ignore[reportMissingImports]
 import requests  # pyright: ignore[reportMissingImports]
 import utime  # pyright: ignore[reportMissingImports]
 
-#import webrepl  # pyright: ignore[reportMissingImports]
+# import webrepl  # pyright: ignore[reportMissingImports]
 from env import AP_CONFIG, HOST, KNOWN_NETWORKS, NOTIFICATION_API
 
 esp.osdebug(0, esp.LOG_DEBUG)
 network.hostname(HOST)
-#webrepl.start()
+# webrepl.start()
 
 
 def setup_interfaces():
